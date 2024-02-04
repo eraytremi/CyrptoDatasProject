@@ -1,0 +1,20 @@
+﻿* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    min-height: 100vh;
+}
+
+.dark {
+    color: #ffffff;
+    background-color: #22262f;
+}
+
+.light {
+    color: #22262f;
+    background-color: #ffffff;
+}

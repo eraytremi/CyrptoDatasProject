@@ -1,0 +1,132 @@
+﻿@model MVC.Models.User.VarlıklarItem
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Varlıklarım</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h2>Varlıklarım</h2>
+
+    <div>
+        <canvas id="varliklarChart"></canvas>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Varlık İsmi</th>
+                <th>Değeri </th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var item in Model.Bakiyeler)
+            {
+                <tr>
+                    <td>@item.DovizTipi </td>
+                    <td>@item.ParaMiktari </td>
+                </tr>
+
+            }
+
+            @foreach (var item in Model.Coinler)
+            {
+                <tr id="coin_@item.Symbol">
+                    <td>@item.Symbol</td>
+                    <td id="value_@item.Symbol"></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <script>
+
+    var coinData = @Html.Raw(Json.Serialize(Model.Coinler.ToDictionary(coin => coin.Symbol, coin => coin.Count)));
+
+    var varliklarData = {
+        labels: [],
+        datasets: [{
+            data: [],
+            backgroundColor: [],
+            borderWidth: 1
+        }]
+    };
+
+
+
+    @foreach (var item in Model.Coinler)
+    {
+        @:varliklarData.labels.push("@item.Symbol");
+        @:varliklarData.datasets[0].data.push(@item.Count);
+        @:varliklarData.datasets[0].backgroundColor.push(randomColor());
+    }
+
+        var ctx = document.getElementById('varliklarChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'pie',
+            data: varliklarData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        function randomColor() {
+            var r = Math.floor(Math.random() * 255);
+            var g = Math.floor(Math.random() * 255);
+            var b = Math.floor(Math.random() * 255);
+            return 'rgba(' + r + ', ' + g + ', ' + b + ', 0.7)';
+        }
+
+        var socket = new WebSocket('wss://stream.binance.com:9443/ws/!ticker@arr');
+        socket.onmessage = function (event) {
+            var tickers = JSON.parse(event.data);
+            tickers.forEach(function (ticker) {
+                if (ticker.s in coinData) {
+                    var coinCount = coinData[ticker.s];
+                    var coinValue = ticker.c * coinCount;
+
+                    // Tablo verisini güncelle
+                    var valueElement = document.getElementById('value_' + ticker.s);
+                    if (valueElement) {
+                        valueElement.innerText = coinValue.toFixed(2);
+                    }
+ 
+                }
+            });
+        };
+
+    socket.onerror = function (error) {
+        console.log('WebSocket Error: ' + error);
+    };
+    </script>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+﻿
+.fixed-top-right {
+    position: fixed; /* Sabit pozisyon */
+    top: 0; /* Üstten 0 */
+    right: 0; /* Sağdan 0 */
+    margin: 10px; /* Sağ üst köşeden biraz boşluk */
+}
+
+.custom-button:hover {
+    background-color: #afeeee; /* Açık turkuaz rengi */
+}

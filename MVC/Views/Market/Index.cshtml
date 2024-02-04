@@ -1,0 +1,425 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Market</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="~/css/market.css" rel="stylesheet" />
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+    <!-- Datatables CSS ve JS -->
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+</head>
+<body>
+    <div class="fixed-top-right">
+        <a href="/Varliklarim/Index" class="btn btn-light custom-button">Varlıklarım</a>
+        <a href="/MyTrades/Index" class="btn btn-light custom-button">Geçmiş İşlemler</a>
+        <a href="/Exit/Index" class="btn btn-light custom-button">Çıkış Yap</a>
+    </div>
+
+    <div class="container mt-5">
+        <label for="pairSelect">Parite Seç:</label>
+        <select id="pairSelect">
+            <option value="">All</option>
+            <option value="USDT">USDT</option>
+            <option value="ETH">ETH</option>
+            <option value="BTC">BTC</option>
+        </select>
+        <table id="eventDataTable" class="display">
+            <thead>
+                <tr>
+                    <th>Sembol</th>
+                    <th>Fiyat Değişimi</th>
+                    <th>Fiyat Değişimi (%)</th>
+                    <th>Fiyat</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal Structure -->
+    <div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Trade Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Symbol:</strong> <span id="modalSymbol"></span></p>
+                    <p><strong>Last Price:</strong> <span id="modalLastPrice"></span></p>
+
+                    <!-- Tab Navigation for Market and Limit Order -->
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="market-tab" data-toggle="tab" href="#market">Market Alım</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="limit-tab" data-toggle="tab" href="#limit">Limit Emir</a>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="market">
+                            <form class="mt-3">
+                                <div class="form-group">
+                                    <label>Miktar</label>
+                                    <input type="number" class="form-control" id="marketAmount">
+                                </div>
+                                <p><strong>Toplam:</strong> <span id="marketTotal"></span></p>
+                                <button class="btn btn-success" id="btnBuyMarket">Al</button>
+                                <button class="btn btn-danger" id="btnSellMarket">Sat</button>
+                            </form>
+                        </div>
+                        <div class="tab-pane fade" id="limit">
+                            <form class="mt-3">
+                                <div class="form-group">
+                                    <label>Fiyat</label>
+                                    <input type="text" class="form-control" id="limitPrice">
+                                </div>
+                                <div class="form-group">
+                                    <label>Miktar</label>
+                                    <input type="text" class="form-control" id="limitAmount">
+                                </div>
+                                <div class="form-group">
+                                    <label>Toplam</label>
+                                    <input type="text" class="form-control" id="limitTotal">
+                                </div>
+                                <button class="btn btn-success" id="btnBuyLimit">Al</button>
+                                <button class="btn btn-danger" id="btnSellLimit">Sat</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        $(document).ready(function () {
+            var dataTable = $('#eventDataTable').DataTable({
+                "columnDefs": [
+                    { "type": "html", "targets": 0 }
+                ]
+            });
+            var currentTickers = {};
+            var currentModalTicker = null;
+
+            // WebSocket bağlantısı
+            const socket = new WebSocket('wss://stream.binance.com:9443/ws/!ticker@arr');
+
+            socket.onmessage = function (event) {
+                var tickers = JSON.parse(event.data);
+
+                tickers.forEach(function (ticker) {
+                    // Sadece belirli hedef para birimleri için işle
+                    var targetCurrency = ticker.s.substr(-4); // Paritenin son 4 karakterini al
+                    var isTargetCurrency = ['USDT'].includes(targetCurrency);
+
+                    // Ayrıca, BTC ve ETH için özel bir kontrol yap
+                    if (!isTargetCurrency) {
+                        targetCurrency = ticker.s.substr(-3); // Son 3 karakteri dene
+                        isTargetCurrency = ['BTC', 'ETH', 'TRY'].includes(targetCurrency);
+                    }
+
+                    if (isTargetCurrency) {
+                        // Bu kısım yukarıdaki kodla aynı
+                        currentTickers[ticker.s] = ticker;
+                        var existingRow = dataTable.row('#' + ticker.s);
+
+                        if (existingRow.length) {
+                            existingRow.data([
+                                ticker.s,
+                                ticker.p,
+                                ticker.P,
+                                ticker.c
+                            ]).draw(false);
+                        } else {
+                            dataTable.row.add([
+                                ticker.s,
+                                ticker.p,
+                                ticker.P,
+                                ticker.c
+                            ]).node().id = ticker.s;
+                            dataTable.draw(false);
+                        }
+
+                        // Eğer modal açıksa ve güncellenen ticker, modalda gösterilen ticker ise
+                        if ($('#dataModal').hasClass('show') && currentModalTicker === ticker.s) {
+                            updateModalData(ticker);
+                        }
+                    }
+                });
+            };
+
+            // Modal içeriğini güncelle
+            function updateModalData(ticker) {
+                $('#modalSymbol').text(ticker.s);
+                $('#modalLastPrice').text(ticker.c);
+            }
+
+            // Miktar girişi için event handler
+            $('#marketAmount').on('input', function () {
+                var amount = $(this).val();
+                var price = parseFloat($('#modalLastPrice').text());
+                var total = amount * price;
+                $('#marketTotal').text(total.toFixed(2));
+            });
+
+            $('#btnBuyMarket').on('click', function () {
+                var symbol = $('#modalSymbol').text();
+                var count = parseFloat($('#marketAmount').val());
+                var price = $('#modalLastPrice').text();
+                postBuyMarket(symbol, count, price);
+            });
+
+            $('#btnSellMarket').on('click', function () {
+                var symbol = $('#modalSymbol').text();
+                var count = parseFloat($('#marketAmount').val());
+                var price = $('#modalLastPrice').text();
+                postSellMarket(symbol, count, price);
+            });
+
+            $('#btnBuyLimit').on('click', function () {
+                var symbol = $('#modalSymbol').text();
+                var count = parseFloat($('#limitAmount').val());
+                var price = $('#modalLastPrice').text();
+                postBuyLimit(symbol, count, price);
+            });
+
+
+            $('#btnSellLimit').on('click', function () {
+                var symbol = $('#modalSymbol').text();
+                var count = parseFloat($('#limitAmount').val());
+                var price = $('#modalLastPrice').text();
+                postBuyLimit(symbol, count, price);
+            });
+
+            // Limit Emir sekmesine geçildiğinde ve modal açıldığında fiyatı güncelle
+            function updateLimitPrice() {
+                var currentPrice = $('#modalLastPrice').text();
+                $('#limitPrice').val(currentPrice);
+            }
+
+            // Limit Emir sekmesine geçiş yapıldığında fiyatı güncelle
+            $('#limit-tab').on('shown.bs.tab', function (e) {
+                updateLimitPrice();
+            });
+
+            // Modal açıldığında fiyatı güncelle
+            $('#dataModal').on('shown.bs.modal', function (e) {
+                if ($('#limit-tab').hasClass('active')) {
+                    updateLimitPrice();
+                }
+            });
+
+
+            // Limit emir Toplamı hesapla ve göster
+            function updateTotal() {
+                var price = parseFloat($('#limitPrice').val());
+                var amount = parseFloat($('#limitAmount').val());
+
+                if (!isNaN(price) && !isNaN(amount)) {
+                    var total = price * amount;
+                    $('#limitTotal').val(total.toFixed(2));
+                } else {
+                    $('#limitTotal').val('');
+                }
+            }
+
+            // Miktar veya Fiyat değiştiğinde Toplamı güncelle
+            $('#limitPrice, #limitAmount').on('input', function () {
+                updateTotal();
+            });
+
+
+            // Satıra tıklama işlevselliği
+            $('#eventDataTable tbody').on('click', 'tr', function () {
+                var data = dataTable.row(this).data();
+                currentModalTicker = data[0]; // Şu anki modal ticker'ı güncelle
+                updateModalData(currentTickers[currentModalTicker]);
+                $('#dataModal').modal('show');
+                $('#market-tab').tab('show');
+            });
+
+            $('#pairSelect').on('change', function () {
+                var selectedPair = $(this).val();
+                dataTable.column(0).search(selectedPair ? selectedPair + '$' : '', true, false).draw();
+            });
+
+            socket.onerror = function (error) {
+                console.log('WebSocket Error: ' + error);
+            };
+
+
+        });
+
+        function postBuyMarket(symbol, count, price) {
+            var postData = {
+                Symbol: symbol,
+                Count: count,
+                Price: price
+            };
+
+            $.ajax({
+                url: '/Market/BuyMarket',
+                method: 'POST',
+                data: postData,
+                success: function (response) {
+                    if (response.isSuccess) {
+                        alert("Başarılı: " + response.message);
+                        Swal.fire({
+                            title: 'Başarılı!',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'Tamam'
+                        });
+                    } else {
+                        alert("Hata: " + response.message);
+                        Swal.fire({
+                            title: 'Hata!',
+                            text: response.message,
+                            icon: 'error',
+                            confirmButtonText: 'Tamam'
+                        });
+                    }
+                },
+                error: function (error) {
+                    console.error("Hata: ", error);
+                }
+            });
+
+
+        }
+
+
+        function postSellMarket(symbol, count, price) {
+            var postData = {
+                Symbol: symbol,
+                Count: count,
+                Price: price
+            };
+
+
+            $.ajax({
+                url: '/Market/SellMarket',
+                method: 'POST',
+                data: postData,
+                success: function (response) {
+                    if (response.isSuccess) {
+                        alert("Başarılı: " + response.message);
+                        Swal.fire({
+                            title: 'Başarılı!',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'Tamam'
+                        });
+                    } else {
+                        alert("Hata: " + response.message);
+                        Swal.fire({
+                            title: 'Hata!',
+                            text: response.message,
+                            icon: 'error',
+                            confirmButtonText: 'Tamam'
+                        });
+                    }
+                },
+                error: function (error) {
+                    console.error("Hata: ", error);
+                }
+            });
+
+
+        }
+
+        function postBuyLimit(symbol, count, price) {
+            var postData = {
+                Symbol: symbol,
+                Count: count,
+                Price: price
+            };
+
+            $.ajax({
+                url: '/Market/BuyLimit',
+                method: 'POST',
+                data: postData,
+                success: function (response) {
+                    if (response.isSuccess) {
+                        alert("Başarılı: " + response.message);
+                        Swal.fire({
+                            title: 'Başarılı!',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'Tamam'
+                        });
+                    } else {
+                        alert("Hata: " + response.message);
+                        Swal.fire({
+                            title: 'Hata!',
+                            text: response.message,
+                            icon: 'error',
+                            confirmButtonText: 'Tamam'
+                        });
+                    }
+                },
+                error: function (error) {
+                    console.error("Hata: ", error);
+                }
+            });
+
+
+        }
+
+
+        function postBuyLimit(symbol, count, price) {
+            var postData = {
+                Symbol: symbol,
+                Count: count,
+                Price: price
+            };
+
+            $.ajax({
+                url: '/Market/SellLimit',
+                method: 'POST',
+                data: postData,
+                success: function (response) {
+                    if (response.isSuccess) {
+                        alert("Başarılı: " + response.message);
+                        Swal.fire({
+                            title: 'Başarılı!',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'Tamam'
+                        });
+                    } else {
+                        alert("Hata: " + response.message);
+                        Swal.fire({
+                            title: 'Hata!',
+                            text: response.message,
+                            icon: 'error',
+                            confirmButtonText: 'Tamam'
+                        });
+                    }
+                },
+                error: function (error) {
+                    console.error("Hata: ", error);
+                }
+            });
+
+
+        }
+
+    </script>
+
+    <!-- Bootstrap JS for Modal -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

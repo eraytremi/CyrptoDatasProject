@@ -1,0 +1,36 @@
+﻿@using  MVC.Models.User
+@model List<MyTradesItem>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geçmiş İşlemler</title>
+    <link href="~/css/mytrades.css" rel="stylesheet" />
+</head>
+<body>
+    <h2>Geçmiş Trade İşlemleri</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>İşlem Tarihi</th>
+                <th>Miktar</th>
+                <th>Sembol</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Time</td>
+                    <td>@item.Count</td>
+                    <td>@item.Symbol</td>
+                </tr>
+            }
+         
+        </tbody>
+    </table>
+</body>
+</html>
