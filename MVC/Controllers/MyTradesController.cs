@@ -17,7 +17,6 @@ namespace MVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         { 
-
             var token = HttpContext.Session.GetObject<UserGetDto>("ActivePerson");
             var response = await _service.GetDataAsync<List<MyTradesItem>>("/user/getmytrades",token.Token);
             return View(response);

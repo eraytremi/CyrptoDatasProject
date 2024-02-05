@@ -1,4 +1,5 @@
-﻿using Model;
+﻿using Infrastructure;
+using Model;
 using Model.Dtos;
 using Model.Dtos.TradeDto;
 using System;
@@ -11,8 +12,8 @@ namespace Business.Abstract
 {
     public interface ITradeService
     {
-        Task MarketBuy(PostTrade dto,long currentUserId);
-        Task MarketSell(PostTrade dto,long currentUserId);
+        Task<ApiResponse<NoData>> MarketBuy(PostTrade dto,long currentUserId);
+        Task<ApiResponse<NoData>> MarketSell(PostTrade dto,long currentUserId);
         Task LimitBuy(PostTrade dto,long currentUserId);
         Task LimitSell(PostTrade dto, long currentUserId);
 

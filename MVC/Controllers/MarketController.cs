@@ -1,5 +1,6 @@
 ﻿using Humanizer;
 using Microsoft.AspNetCore.Mvc;
+using MVC.Models;
 using MVC.Models.Datas;
 using MVC.Models.User;
 using PurchasingSystem.Web.ApiServices.Interfaces;
@@ -20,10 +21,9 @@ namespace MVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var token = HttpContext.Session.GetObject<UserGetDto>("ActivePerson");
-            var response = await _httpApiService.GetDataAsync<List<TickerResult>>("/WebSocketBinance/getlistdatas", token.Token);
+            var token = HttpContext.Session.GetObject<ApiResponse<UserGetDto>>("ActivePerson");
 
-            return View(response);
+            return View();
         }
 
 
@@ -31,7 +31,7 @@ namespace MVC.Controllers
         public async Task<IActionResult> BuyMarket(PostMarketItem post)
         {
             var token = HttpContext.Session.GetObject<UserGetDto>("ActivePerson");
-            var response = await _httpApiService.PostDataAsync<PostMarketItem>("/Trade/buymarket", JsonSerializer.Serialize(post), token:token.Token);
+            var response = await _httpApiService.PostDataAsync<ApiResponse<PostMarketItem>>("/Trade/buymarket", JsonSerializer.Serialize(post), token:token.Token);
           
             return View("/Market/Index");
 
@@ -42,7 +42,7 @@ namespace MVC.Controllers
         public async Task<IActionResult> SellMarket(PostMarketItem post)
         {
             var token = HttpContext.Session.GetObject<UserGetDto>("ActivePerson");
-            var response = await _httpApiService.PostDataAsync<PostMarketItem>("/Trade/sellmarket", JsonSerializer.Serialize(post), token: token.Token);
+            var response = await _httpApiService.PostDataAsync<ApiResponse<PostMarketItem>>("/Trade/sellmarket", JsonSerializer.Serialize(post), token: token.Token);
             if (response != null)
             {
                 return Json(new { IsSuccess = true, Message = "Market satış işlemi başarıyla gerçekleşti", response });

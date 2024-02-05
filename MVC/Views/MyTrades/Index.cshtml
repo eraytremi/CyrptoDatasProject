@@ -1,5 +1,16 @@
-﻿@using  MVC.Models.User
-@model List<MyTradesItem>
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section customScripts {
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('table').DataTable();
+        });
+    </script>
+}
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -8,28 +19,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Geçmiş İşlemler</title>
     <link href="~/css/mytrades.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
 </head>
 <body>
-    <h2>Geçmiş Trade İşlemleri</h2>
+    <h2 style="text-align: center;">Geçmiş Trade İşlemleri</h2>
     <table>
         <thead>
             <tr>
                 <th>İşlem Tarihi</th>
+                <th>Fiyat</th>
                 <th>Miktar</th>
                 <th>Sembol</th>
             </tr>
         </thead>
         <tbody>
-
             @foreach (var item in Model)
             {
                 <tr>
                     <td>@item.Time</td>
+                    <td>@item.Price</td>
                     <td>@item.Count</td>
                     <td>@item.Symbol</td>
                 </tr>
             }
-         
         </tbody>
     </table>
 </body>

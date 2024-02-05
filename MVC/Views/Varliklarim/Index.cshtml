@@ -1,4 +1,8 @@
-﻿@model MVC.Models.User.VarlıklarItem
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model MVC.Models.User.VarlıklarItem
  
 <!DOCTYPE html>
 <html lang="en">
@@ -29,7 +33,7 @@
     </style>
 </head>
 <body>
-    <h2>Varlıklarım</h2>
+    <h2 style="text-align: center;">Varlıklarım</h2>
 
     <div>
         <canvas id="varliklarChart"></canvas>

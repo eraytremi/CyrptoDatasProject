@@ -1,21 +1,20 @@
 ﻿using Business.Abstract;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Model;
-using System.Net.WebSockets;
 
 namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WebSocketBinanceController
+    public class WebsocketController : ControllerBase
     {
-       private readonly ITickerResultService _tickerResultService;
+        private readonly ITickerResultService _tickerResultService;
 
-        public WebSocketBinanceController(ITickerResultService tickerResultService)
+        public WebsocketController(ITickerResultService tickerResultService)
         {
             _tickerResultService = tickerResultService;
-            
+
         }
 
         [HttpGet("getlistdatas")]

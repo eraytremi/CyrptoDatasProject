@@ -9,7 +9,7 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController:ControllerBase
+    public class UserController:BaseController
     {
         private readonly IUserService _userService;
         private readonly IConfiguration _configuration;

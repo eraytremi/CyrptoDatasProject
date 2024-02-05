@@ -39,6 +39,6 @@ app.UseWebSockets();
 
 
 app.MapControllers();
-
+app.UseCustomException();
 app.Run();
 

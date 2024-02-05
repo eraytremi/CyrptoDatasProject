@@ -28,7 +28,7 @@ namespace DataAccess
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source = DESKTOP-93NHESI\\MYSQLSERVER; Database = CyrptoTradeData; Trusted_Connection = true; TrustServerCertificate = true;");
+            optionsBuilder.UseSqlServer("Data Source = DESKTOP-R04PVQ3\\SQLEXPRESS; Database = CyrptoTradeData; Trusted_Connection = true; TrustServerCertificate = true;");
         }
 
 

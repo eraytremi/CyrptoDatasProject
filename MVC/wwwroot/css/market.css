@@ -1,11 +1,25 @@
 ﻿
-.fixed-top-right {
-    position: fixed; /* Sabit pozisyon */
-    top: 0; /* Üstten 0 */
-    right: 0; /* Sağdan 0 */
-    margin: 10px; /* Sağ üst köşeden biraz boşluk */
+
+.add-alarm {
+    position: relative;
+    cursor: pointer; /* İmleci değiştirerek tıklanabilir olduğunu belirtir */
+    padding: 5px; /* Tıklanabilir alanı genişletir */
+    font-size: 20px; /* İşaretin boyutunu büyütür */
+    display: inline-block; /* Düzgün hizalama ve padding için */
+    line-height: 1; /* Satır yüksekliğini ayarlar */
 }
 
-.custom-button:hover {
-    background-color: #afeeee; /* Açık turkuaz rengi */
-}
+.add-alarm:hover::after {
+        content: 'Alarm Kur';
+        position: absolute;
+        top: 0;
+        left: 100%; /* "+" işaretinin hemen yanında görünmesi için ayar */
+        white-space: nowrap;
+        background-color: #f8f9fa;
+        padding: 5px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 12px;
+        color: black;
+        z-index: 1; /* Diğer öğelerin üzerinde görünmesi için */
+ }

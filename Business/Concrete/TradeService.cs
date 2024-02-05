@@ -1,5 +1,8 @@
 ﻿using Business.Abstract;
 using DataAccess;
+using Infrastructure;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Model;
@@ -227,7 +230,7 @@ namespace Business.Concrete
 
             }
         }
-        public async Task MarketBuy(PostTrade dto, long currentUserId)
+        public async Task<ApiResponse<NoData>> MarketBuy(PostTrade dto, long currentUserId)
         {
             var getUser = _context.Users.SingleOrDefault(p => p.Id == currentUserId);
 
@@ -250,15 +253,15 @@ namespace Business.Concrete
                     var existDöviz = dto.Symbol.Contains(item.ParaTipi.DövizTipi);
                     if (existDöviz)
                     {
-                        var convert = decimal.Parse(dto.Price);
-                        decimal convertedValue = convert / 100000000M;
+                        var convert = decimal.Parse(dto.Price, CultureInfo.InvariantCulture);
+                        //decimal convertedValue = convert / 100000000M;
 
 
                         //aynı ise alınacak adet ile o anki fiyatı ile çarp. Maliyet*
-                        var buyTrade = convertedValue * Convert.ToDecimal(dto.Count);
+                        var buyTrade = convert * Convert.ToDecimal(dto.Count);
                         if (buyTrade > item.ParaMiktarı)
                         {
-                            throw new Exception("Bakiye yetersiz");
+                        return ApiResponse<NoData>.Fail(StatusCodes.Status400BadRequest, "Bakiye Yetersiz");
                         }
 
                  
@@ -269,15 +272,17 @@ namespace Business.Concrete
                             item.ParaMiktarı = result;
                             _context.Bakiye.Update(item);
                             await _context.SaveChangesAsync();
-                        
+                            
                             //yapılan işlemi trade tablosuna kaydet
                             trade.UserId = currentUserId;
                             trade.Time = DateTime.Now;
                             trade.isBuy = true;
                             trade.Count = dto.Count;
                             trade.Symbol = symbol;
+                            trade.Price = convert;
                             _context.Trades.Add(trade);
                             await _context.SaveChangesAsync();
+                            
 
                         //coinlist tablo güncelle 
                         var coinList = _context.CoinList.FirstOrDefault(p => p.Symbol == dto.Symbol && p.UserId == currentUserId);
@@ -288,7 +293,6 @@ namespace Business.Concrete
                                 coinList.Count += dto.Count;
                                 _context.CoinList.Update(coinList);
                                 await _context.SaveChangesAsync();
-                            
                         }
 
                         else
@@ -298,14 +302,18 @@ namespace Business.Concrete
                             coinListTable.Symbol = dto.Symbol;
                             _context.CoinList.Add(coinListTable);
                             await _context.SaveChangesAsync();
-                        }
+                            return ApiResponse<NoData>.Success(StatusCodes.Status200OK);
+
+                    }
 
                 }
                 
-            }         
+            }
+
+            return ApiResponse<NoData>.Success(StatusCodes.Status200OK);
         }
 
-        public async Task MarketSell(PostTrade dto, long currentUserId)
+        public async Task<ApiResponse<NoData>> MarketSell(PostTrade dto, long currentUserId)
         {
             var getUser = _context.Users.SingleOrDefault(p => p.Id == currentUserId);
 
@@ -335,7 +343,8 @@ namespace Business.Concrete
                     var buyTrade = convertedValue * Convert.ToDecimal(dto.Count);
                     if (buyTrade > item.ParaMiktarı)
                     {
-                        throw new Exception("Bakiye yetersiz");
+                        return ApiResponse<NoData>.Fail(StatusCodes.Status400BadRequest, "Bakiye Yetersiz");
+
                     }
 
                     //bakiyeden alınan miktarı düş.
@@ -351,6 +360,7 @@ namespace Business.Concrete
                     trade.isSell = true;
                     trade.Count = dto.Count;
                     trade.Symbol = symbol;
+                    trade.Price = convert;
                     _context.Trades.Add(trade);
                     await _context.SaveChangesAsync();
 
@@ -363,7 +373,8 @@ namespace Business.Concrete
                         
                         if (coinList.Count<dto.Count)
                         {
-                            throw new Exception("Yeterli sayıda coin yok!!");
+                            return ApiResponse<NoData>.Fail(StatusCodes.Status400BadRequest, "yeterli sayıda coin yok!!");
+
                         }
                         coinList.Count -= dto.Count;
                         _context.CoinList.Update(coinList);
@@ -373,11 +384,15 @@ namespace Business.Concrete
                     //yoksa olmayan malı satamazsın zaten
                     else
                     {
-                       throw new Exception($"Varlıklarında {dto.Symbol} yok!");
+                        return ApiResponse<NoData>.Fail(StatusCodes.Status400BadRequest, $"Varlıklarında {dto.Symbol} yok!");
+
+                       
                     }
                 }
 
             }
+            return ApiResponse<NoData>.Success(StatusCodes.Status200OK);
+
         }
 
         private async Task<List<TickerResult>> GetCurrentDatas()

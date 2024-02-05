@@ -15,5 +15,6 @@ namespace Model.Dtos.TradeDto
         public bool isSell { get; set; }
         public double Count { get; set; }
         public string Symbol { get; set; }
+        public decimal Price { get; set; }
     }
 }

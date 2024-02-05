@@ -18,6 +18,7 @@ namespace Model
         public double Count { get; set; } 
         public string Symbol { get; set; }
         public bool WaitingTrades { get; set; } = false;
+        public decimal Price { get; set; }
         [ForeignKey("UserId")]
         public User? User { get; set; }
         

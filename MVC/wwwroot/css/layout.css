@@ -1,4 +1,6 @@
-﻿* {
+﻿
+
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -7,6 +9,11 @@
 body {
     width: 100%;
     min-height: 100vh;
+    background-image: url('~/images/backgroundImage.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
 }
 
 .dark {
@@ -18,3 +25,15 @@ body {
     color: #22262f;
     background-color: #ffffff;
 }
+
+.fixed-top-right {
+    position: fixed; /* Sabit pozisyon */
+    top: 0; /* Üstten 0 */
+    right: 0; /* Sağdan 0 */
+    margin: 10px; /* Sağ üst köşeden biraz boşluk */
+}
+
+.custom-button:hover {
+    background-color: #afeeee; /* Açık turkuaz rengi */
+}
+

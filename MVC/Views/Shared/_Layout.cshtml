@@ -16,63 +16,32 @@
 
     @RenderSection("customStyles", false)
 
-    <title>CyproData | @ViewBag.Title</title>
+    <style>
+      
+    </style>
+    <title>CyproData | @ViewBag.Title</title>       
 </head>
-<body class="dark">
-    <div>
-        <!-- header start -->
-        <header class="w-100 px-4 flex-shrink-0 position-fixed">
-            <div class="py-3 place-items-between">
-                <!-- logo start -->
-                <div id="logo">
-                    <a href="/Home/Index">
-                        <img src="" alt="logo" height="25" />
-                    </a>
-                </div>
-                <!-- logo end -->
+<body>
+             <div>
 
-                <!-- navbar start -->   
-                <nav class="place-items-between">
-                    <!-- navigation buttons start -->
-                    <div class="place-items-between gap-3 mx-3">
-                        <a href="#" class="btn btn-primary">Piyasalar <i class="bi bi-clipboard-data-fill"></i></a>
-                        <a href="#" class="btn btn-primary">Duyurular <i class="bi bi-megaphone-fill"></i></a>
-                        <a href="#" class="btn btn-primary">Kolay Al/Sat <i class="bi bi-cash-coin"></i></a>
-                        <a href="#" class="btn btn-primary">Giriş Yap <i class="bi bi-person"></i></a>
-                    </div>
-                    <!-- navigation buttons end -->
 
-                    <!-- theme-mode start -->
-                    <div class="d-flex">
-                        <div class="theme-switch-wrapper">
-                            <label class="theme-switch" for="theme-switch">
-                                <input type="checkbox" id="theme-switch" />
-                                <div class="slider round">
-                                    <i class="bi bi-brightness-high px-1"></i>
-                                    <i class="bi bi-moon px-1"></i>
-                                </div>
-                            </label>
-                        </div>
+                    <div id="logo" style="margin-top: 20px; margin-left: 20px;">
+                        <a href="/Market/Index">
+                             <img src="~/images/logo.png" alt="logo" height="80" style="border-radius: 30px;" />
+                        </a>    
                     </div>
-                    <!-- theme-mode end -->
-                </nav>
-                <!-- navbar end -->
+       
+                    <div class="fixed-top-right">
+                        <a href="/Varliklarim/Index" class="btn btn-light custom-button">Varlıklarım</a>
+                        <a href="/MyTrades/Index" class="btn btn-light custom-button">Geçmiş İşlemler</a>
+                        <a href="/Exit/Index" class="btn btn-light custom-button">Çıkış Yap</a>
+                    </div>     
             </div>
-        </header>
-        <!-- header end -->
-
-        <!-- main start -->
+ 
         <main>
             @RenderBody()
         </main>
         <!-- main end -->
-
-        <!-- footer start -->
-        <footer>
-
-        </footer>
-        <!-- footer end -->
-    </div>
 
     <!-- bootstrap.bundle.min.js dosyası bağlantı etiketi -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

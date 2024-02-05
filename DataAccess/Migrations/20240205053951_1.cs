@@ -102,7 +102,8 @@ namespace DataAccess.Migrations
                     isSell = table.Column<bool>(type: "bit", nullable: false),
                     Count = table.Column<double>(type: "float", nullable: false),
                     Symbol = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    WaitingTrades = table.Column<bool>(type: "bit", nullable: false)
+                    WaitingTrades = table.Column<bool>(type: "bit", nullable: false),
+                    Price = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
