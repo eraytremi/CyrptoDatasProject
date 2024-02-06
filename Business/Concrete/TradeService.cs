@@ -32,7 +32,7 @@ namespace Business.Concrete
             _context = context;
         }
 
-        public async Task LimitBuy(PostTrade dto, long currentUserId)
+        public async Task<ApiResponse<NoData>> LimitBuy(PostTrade dto, long currentUserId)
         {
             var getUser = _context.Users.SingleOrDefault(p => p.Id == currentUserId);
 
@@ -62,7 +62,8 @@ namespace Business.Concrete
                     var buyTrade = convertedValue * Convert.ToDecimal(dto.Count);
                     if (buyTrade > item.ParaMiktarı)
                     {
-                        throw new Exception("Bakiye yetersiz");
+                        return ApiResponse<NoData>.Fail(StatusCodes.Status400BadRequest, "Bakiye Yetersiz");
+
                     }
 
                     var isMatched = false;
@@ -112,8 +113,7 @@ namespace Business.Concrete
                                 _context.CoinList.Add(coinListTable);
                                 await _context.SaveChangesAsync();
                             }
-                            var isPriceMatched = true;
-                            break; // Döngüden çık
+                          
 
 
                             if (currentData != null && currentData.LastPrice != dto.Price)
@@ -131,8 +131,11 @@ namespace Business.Concrete
                             }
                             if (currentData == null)
                             {
-                                throw new Exception("Coin listede bulunamadı");
+                                return ApiResponse<NoData>.Fail(StatusCodes.Status400BadRequest, "Coin listede yok");
                             }
+
+                            var isPriceMatched = true;
+                            break; // Döngüden çık
                         }
 
                     }
@@ -141,9 +144,11 @@ namespace Business.Concrete
                 }
 
             }
+            return ApiResponse<NoData>.Success(StatusCodes.Status200OK);
+
         }
 
-        public async Task LimitSell(PostTrade dto, long currentUserId)
+        public async Task<ApiResponse<NoData>> LimitSell(PostTrade dto, long currentUserId)
         {
             var getUser = _context.Users.SingleOrDefault(p => p.Id == currentUserId);
 
@@ -173,7 +178,7 @@ namespace Business.Concrete
                     var buyTrade = convertedValue * Convert.ToDecimal(dto.Count);
                     if (buyTrade > item.ParaMiktarı)
                     {
-                        throw new Exception("Bakiye yetersiz");
+                        return ApiResponse<NoData>.Fail(StatusCodes.Status400BadRequest, "Bakiye Yetersiz");
                     }
 
                     var isMatched = false;
@@ -210,7 +215,7 @@ namespace Business.Concrete
                             {
                                 if (coinList.Count < dto.Count)
                                 {
-                                    throw new Exception("Yeterli sayıda coin yok!!");
+                                    return ApiResponse<NoData>.Fail(StatusCodes.Status400BadRequest, "yeterli sayıda coin yok");
                                 }
                             
                                 coinList.Count -= dto.Count;
@@ -220,7 +225,7 @@ namespace Business.Concrete
                             }
                             var isPriceMatched = true;
                             break; // Döngüden çık
- 
+                    
                         }
 
                     }
@@ -229,6 +234,8 @@ namespace Business.Concrete
                 }
 
             }
+
+            return ApiResponse<NoData>.Success(StatusCodes.Status200OK);
         }
         public async Task<ApiResponse<NoData>> MarketBuy(PostTrade dto, long currentUserId)
         {
@@ -393,6 +400,36 @@ namespace Business.Concrete
             }
             return ApiResponse<NoData>.Success(StatusCodes.Status200OK);
 
+        }
+
+        public async Task<ApiResponse<Dictionary<string,decimal>>> OrtalamaMaliyet(long currentUserId)
+        {
+            var getUser = await _context.Users.SingleOrDefaultAsync(p=>p.Id == currentUserId);
+            var getTrades =  _context.Trades.Where(t => t.UserId == currentUserId).ToList();
+
+            var groupBy = getTrades.GroupBy(p=>p.Symbol).ToList();
+
+            var averageCosts =  new Dictionary<string, decimal>();
+
+            foreach ( var getTrade in groupBy) {
+                var symbolKey =getTrade.Key;
+                var tradesForSymbols = getTrade.ToList();
+
+                decimal totalCost = 0;  
+                decimal totalCount = 0;
+
+                foreach (var tradesForSymbol in tradesForSymbols)
+                {
+                    totalCost += tradesForSymbol.Price * Convert.ToDecimal(tradesForSymbol.Count);
+                    totalCount += Convert.ToDecimal(tradesForSymbol.Count);
+                }
+
+                decimal averageCost =  totalCost/totalCount;
+                averageCosts.Add(symbolKey,averageCost);
+            }
+
+            return ApiResponse<Dictionary<string,decimal>>.Success(StatusCodes.Status200OK, averageCosts);
+          
         }
 
         private async Task<List<TickerResult>> GetCurrentDatas()

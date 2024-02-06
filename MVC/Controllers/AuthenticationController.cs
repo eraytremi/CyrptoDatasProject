@@ -1,5 +1,6 @@
 ﻿using Humanizer;
 using Microsoft.AspNetCore.Mvc;
+using MVC.Models;
 using MVC.Models.User;
 using PurchasingSystem.Web.ApiServices.Interfaces;
 using PurchasingSystem.Web.Extensions;
@@ -24,7 +25,7 @@ namespace MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> LogIn(LoginUserItem dto)
         {
-            var response = await _httpApiService.PostDataAsync<UserGetDto>
+            var response = await _httpApiService.PostDataAsync<ApiResponse<UserGetDto>>
                  ($"/User", JsonSerializer.Serialize(dto));
 
             if (response != null)

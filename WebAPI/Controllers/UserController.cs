@@ -24,12 +24,12 @@ namespace WebAPI.Controllers
         {
             var response = _userService.Login(dto.Email, dto.Password);
             var claims = new List<Claim>() {
-                new Claim(JwtRegisteredClaimNames.NameId, response.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.NameId, response.Data.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
             var accessToken = new JwtGenerator(_configuration).CreateAccessToken(claims);
-            response.Token = accessToken.Token;
-            return Ok(response);
+            response.Data.Token = accessToken.Token;
+            return SendResponse(response);
         }
 
         [HttpGet("varliklarim")]
@@ -37,7 +37,7 @@ namespace WebAPI.Controllers
         {
             var currentUserId = CurrentUser.Get(HttpContext);
             var response = await _userService.GetUserVarliklar(currentUserId.GetValueOrDefault());
-            return Ok(response);
+            return SendResponse(response);
         }
 
 
@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
         {
             var currentUserId = CurrentUser.Get(HttpContext);
             var response = await _userService.GetMyTrades(currentUserId.GetValueOrDefault());
-            return Ok(response);
+            return SendResponse(response);
         }
     }
 }

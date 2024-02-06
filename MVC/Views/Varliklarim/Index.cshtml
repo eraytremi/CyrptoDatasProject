@@ -2,8 +2,17 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@model MVC.Models.User.VarlıklarItem
+@model MVC.Models.ViewModels.VarlıklarimVM
  
+@section customScripts {
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('table').DataTable();
+        });
+    </script>
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,6 +20,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Varlıklarım</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
 
     <style>
         table {
@@ -44,32 +54,46 @@
             <tr>
                 <th>Varlık İsmi</th>
                 <th>Değeri </th>
+                <th>Ortalama Maliyet</th>
             </tr>
         </thead>
         <tbody>
 
-            @foreach (var item in Model.Bakiyeler)
+            @foreach (var item in Model.Varliklar.Bakiyeler)
             {
                 <tr>
                     <td>@item.DovizTipi </td>
                     <td>@item.ParaMiktari </td>
+                    <td>N/A</td>
                 </tr>
 
             }
 
-            @foreach (var item in Model.Coinler)
+            @foreach (var item in Model.Varliklar.Coinler)
             {
                 <tr id="coin_@item.Symbol">
                     <td>@item.Symbol</td>
                     <td id="value_@item.Symbol"></td>
+                    <td>
+                        @if (Model.AverageCosts.Cost.TryGetValue(item.Symbol, out var averageCost))
+                        {
+                            @averageCost
+                        }
+                        else
+                        {
+                            @:N/A
+                        }
+                    </td>
                 </tr>
             }
+
+
         </tbody>
     </table>
 
     <script>
 
-    var coinData = @Html.Raw(Json.Serialize(Model.Coinler.ToDictionary(coin => coin.Symbol, coin => coin.Count)));
+    var coinData = @Html.Raw(Json.Serialize(Model.Varliklar.Coinler.ToDictionary(coin => coin.Symbol, coin => coin.Count)));
 
     var varliklarData = {
         labels: [],
@@ -82,7 +106,7 @@
 
 
 
-    @foreach (var item in Model.Coinler)
+    @foreach (var item in Model.Varliklar.Coinler)
     {
         @:varliklarData.labels.push("@item.Symbol");
         @:varliklarData.datasets[0].data.push(@item.Count);

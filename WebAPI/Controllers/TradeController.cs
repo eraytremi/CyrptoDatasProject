@@ -1,4 +1,5 @@
-﻿using Business.Abstract;
+﻿using Azure;
+using Business.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,6 @@ using Model.Dtos.TradeDto;
 
 namespace WebAPI.Controllers
 {
-    [Authorize]
 
     [Route("api/[controller]")]
     [ApiController]
@@ -23,32 +23,44 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> BuyMarket(PostTrade dto)
         {
             var currentUserId = CurrentUser.Get(HttpContext);
-            await _tradeService.MarketBuy(dto,currentUserId.GetValueOrDefault());
-            return Ok();
+            var response= await _tradeService.MarketBuy(dto,currentUserId.GetValueOrDefault());
+            return SendResponse(response);
         }
 
         [HttpPost("sellmarket")]
         public async Task<IActionResult> SellMarket(PostTrade dto)
         {
             var currentUserId = CurrentUser.Get(HttpContext);
-            await _tradeService.MarketSell(dto, currentUserId.GetValueOrDefault());
-            return Ok();
+            var response= await _tradeService.MarketSell(dto, currentUserId.GetValueOrDefault());
+            return SendResponse(response);
+
         }
 
         [HttpPost("buylimit")]
         public async Task<IActionResult> BuyLimit(PostTrade dto)
         {
             var currentUserId = CurrentUser.Get(HttpContext);
-            await _tradeService.LimitBuy(dto, currentUserId.GetValueOrDefault());
-            return Ok();
+            var response = await _tradeService.LimitBuy(dto, currentUserId.GetValueOrDefault());
+            return SendResponse(response);
+
         }
 
         [HttpPost("selllimit")]
         public async Task<IActionResult> SellLimit(PostTrade dto)
         {
             var currentUserId = CurrentUser.Get(HttpContext);
-            await _tradeService.LimitSell(dto, currentUserId.GetValueOrDefault());
-            return Ok();
+            var response = await _tradeService.LimitSell(dto, currentUserId.GetValueOrDefault());
+            return SendResponse(response);
+
+        }
+
+        [HttpGet("ortalamaMaliyet")]
+        public async Task<IActionResult> OrtalamaMaliyet()
+        {
+            var currentUserId = CurrentUser.Get(HttpContext);
+            var response = await _tradeService.OrtalamaMaliyet(currentUserId.GetValueOrDefault());
+            return SendResponse(response);
+
         }
     }
 }

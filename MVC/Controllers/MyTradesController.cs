@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MVC.Models;
 using MVC.Models.User;
+using MVC.Models.ViewModels;
 using PurchasingSystem.Web.ApiServices.Interfaces;
 using PurchasingSystem.Web.Extensions;
 
@@ -17,9 +19,12 @@ namespace MVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         { 
-            var token = HttpContext.Session.GetObject<UserGetDto>("ActivePerson");
-            var response = await _service.GetDataAsync<List<MyTradesItem>>("/user/getmytrades",token.Token);
-            return View(response);
+            var token = HttpContext.Session.GetObject<ApiResponse<UserGetDto>>("ActivePerson");
+            var response = await _service.GetDataAsync<ApiResponse<List<MyTradesItem>>>("/user/getmytrades",token.Data.Token);
+          
+            return View(response.Data);
         }
+
+       
     }
 }

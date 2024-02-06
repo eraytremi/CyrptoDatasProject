@@ -21,8 +21,6 @@ namespace MVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var token = HttpContext.Session.GetObject<ApiResponse<UserGetDto>>("ActivePerson");
-
             return View();
         }
 
@@ -30,10 +28,18 @@ namespace MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> BuyMarket(PostMarketItem post)
         {
-            var token = HttpContext.Session.GetObject<UserGetDto>("ActivePerson");
-            var response = await _httpApiService.PostDataAsync<ApiResponse<PostMarketItem>>("/Trade/buymarket", JsonSerializer.Serialize(post), token:token.Token);
-          
-            return View("/Market/Index");
+            var token = HttpContext.Session.GetObject<ApiResponse<UserGetDto>>("ActivePerson");
+            var response = await _httpApiService.PostDataAsync<ApiResponse<PostMarketItem>>("/Trade/buymarket", JsonSerializer.Serialize(post), token:token.Data.Token);
+                
+            if (response.StatusCode == 200)
+            {
+                return Json(new { IsSuccess = true, Message = "Market satış işlemi başarıyla gerçekleşti" ,response});
+
+            }
+            else
+            {
+                return Json(new {IsSuccess=true,response.ErrorMessages });
+            }
 
         }
 
@@ -41,9 +47,9 @@ namespace MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> SellMarket(PostMarketItem post)
         {
-            var token = HttpContext.Session.GetObject<UserGetDto>("ActivePerson");
-            var response = await _httpApiService.PostDataAsync<ApiResponse<PostMarketItem>>("/Trade/sellmarket", JsonSerializer.Serialize(post), token: token.Token);
-            if (response != null)
+            var token = HttpContext.Session.GetObject<ApiResponse<UserGetDto>>("ActivePerson");
+            var response = await _httpApiService.PostDataAsync<ApiResponse<PostMarketItem>>("/Trade/sellmarket", JsonSerializer.Serialize(post), token: token.Data.Token);
+            if (response.StatusCode == 200)
             {
                 return Json(new { IsSuccess = true, Message = "Market satış işlemi başarıyla gerçekleşti", response });
 
@@ -57,9 +63,9 @@ namespace MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> BuyLimit(PostMarketItem post)
         {
-            var token = HttpContext.Session.GetObject<UserGetDto>("ActivePerson");
-            var response = await _httpApiService.PostDataAsync<PostMarketItem>("/Trade/buylimit", JsonSerializer.Serialize(post), token: token.Token);
-            if (response != null)
+            var token = HttpContext.Session.GetObject<ApiResponse<UserGetDto>>("ActivePerson");
+            var response = await _httpApiService.PostDataAsync<ApiResponse<PostMarketItem>>("/Trade/buylimit", JsonSerializer.Serialize(post), token: token.Data.Token);
+            if (response.StatusCode == 200)
             {
                 return Json(new { IsSuccess = true, Message = "Market satış işlemi başarıyla gerçekleşti", response });
 
@@ -74,9 +80,9 @@ namespace MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> SellLimit(PostMarketItem post)
         {
-            var token = HttpContext.Session.GetObject<UserGetDto>("ActivePerson");
-            var response = await _httpApiService.PostDataAsync<PostMarketItem>("/Trade/selllimit", JsonSerializer.Serialize(post), token: token.Token);
-            if (response != null)
+            var token = HttpContext.Session.GetObject<ApiResponse<UserGetDto>>("ActivePerson");
+            var response = await _httpApiService.PostDataAsync<ApiResponse<PostMarketItem>>("/Trade/selllimit", JsonSerializer.Serialize(post), token: token.Data.Token);
+            if (response.StatusCode == 200)
             {
                 return Json(new { IsSuccess = true, Message = "Market satış işlemi başarıyla gerçekleşti", response });
 

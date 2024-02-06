@@ -18,6 +18,7 @@ namespace Model
         public double Count { get; set; } 
         public string Symbol { get; set; }
         public bool WaitingTrades { get; set; } = false;
+        [Column(TypeName = "decimal(18, 8)")]
         public decimal Price { get; set; }
         [ForeignKey("UserId")]
         public User? User { get; set; }
