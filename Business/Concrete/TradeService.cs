@@ -3,16 +3,19 @@ using DataAccess;
 using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Model;
 using Model.Dtos;
 using Model.Dtos.TradeDto;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -22,6 +25,9 @@ namespace Business.Concrete
 {
     public class TradeService : ITradeService
     {
+        private const string apiKey = "19b6d8ac-e882-4365-8dd7-3289768d6e30";
+        private const string url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest";
+        private const string urlVolume = "";
         private readonly ITickerResultService? _tickerResult;
         private readonly CyrptoContext _context;
         Trade trade = new();
@@ -30,6 +36,29 @@ namespace Business.Concrete
         {
             _tickerResult = tickerResult;
             _context = context;
+        }
+
+        public async Task<ApiResponse<CoinMarketCapResponse>> CoinMarketCap(long currentUserId)
+        {
+            using (var client = new HttpClient())
+            {
+
+                client.DefaultRequestHeaders.Add("X-CMC_PRO_API_KEY", apiKey);
+
+
+                //Supply verilerini getir
+                var response=  await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                string responseBody =  await response.Content.ReadAsStringAsync();
+                var data = JsonConvert.DeserializeObject<CoinMarketCapResponse>(responseBody);
+
+                //Volume verilerini getir 
+
+
+                return ApiResponse<CoinMarketCapResponse>.Success(StatusCodes.Status200OK, data);
+            }
+
+            
         }
 
         public async Task<ApiResponse<NoData>> LimitBuy(PostTrade dto, long currentUserId)
@@ -434,6 +463,7 @@ namespace Business.Concrete
 
         private async Task<List<TickerResult>> GetCurrentDatas()
         {
+
             var datas = await _tickerResult.GetDatas();
             return datas;
         }

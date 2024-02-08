@@ -1,4 +1,5 @@
 ﻿using Business.Abstract;
+using Microsoft.AspNetCore.SignalR;
 using Model;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,6 @@ namespace Business.Concrete
     public class TickerResultService : ITickerResultService
     {
         private readonly IWebSocketBinance _webSocket;
-
         public TickerResultService(IWebSocketBinance webSocket)
         {
             _webSocket = webSocket;
@@ -21,7 +21,6 @@ namespace Business.Concrete
         public async Task<List<TickerResult>> GetDatas()
         {
             var tickerStats = await _webSocket.ReceiveAsync<List<TickerResult>>();
-            
             return tickerStats;
         }
     }

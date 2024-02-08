@@ -1,5 +1,6 @@
 ﻿using Humanizer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using MVC.Models;
 using MVC.Models.Datas;
 using MVC.Models.User;
@@ -21,6 +22,7 @@ namespace MVC.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+           
             return View();
         }
 
@@ -92,6 +94,13 @@ namespace MVC.Controllers
                 return Json(new { IsSuccess = false });
             }
 
+        }
+
+        public async Task<IActionResult> CoinMarketData()
+        {
+            var token = HttpContext.Session.GetObject<ApiResponse<UserGetDto>>("ActivePerson");
+            var response = await _httpApiService.GetDataAsync<ApiResponse<CoinMarketCapItem>>("/Trade/coinmarketdata", token: token.Data.Token);
+            return View(response.Data);
         }
     }
 }

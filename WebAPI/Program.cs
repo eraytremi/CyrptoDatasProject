@@ -2,6 +2,7 @@ using Business.Abstract;
 using Business.Concrete;
 using Business.Concrete.Profiles;
 using DataAccess;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.WebSockets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +24,7 @@ builder.Services.AddAutoMapper(typeof(UserProfile));
 
 builder.Services.AddWebApiServices(builder.Configuration);
 builder.Services.AddAuthServices(builder.Configuration);
+builder.Services.AddSignalR();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -31,12 +33,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseRouting();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseAuthentication();
 app.UseWebSockets();
-
 
 app.MapControllers();
 app.UseCustomException();

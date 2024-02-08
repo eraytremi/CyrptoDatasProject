@@ -1,27 +1,38 @@
-﻿@{
+﻿@using MVC.Models.Datas
+@{
     Layout = "~/Views/Shared/_Layout.cshtml";
 
 }
+@model CoinMarketCapItem
 
 
 @section customScripts {
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
     <script>
-        var dataTable = $('#eventDataTable').DataTable({
+        <script type="text/javascript" charset = "utf8" src = "https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js" ></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+    <script>
+                // DataTable başlatma
+                var dataTable = $('#eventDataTable').DataTable({
             "columnDefs": [
                 { "type": "html", "targets": 0 },
                 {
-                    "targets": 4, // dördüncü sütun
+                    "targets": 4, // Dördüncü sütun
                     "data": null, // Veri yok
-                    "defaultContent": "<span class='add-alarm'>+</span>", // "+" işareti
+                    "defaultContent": "<button class='btn btn-info btn-sm'>Detay</button>", // Buton ekleme
                     "orderable": false // Sıralanabilir değil
                 }
             ]
-        });
-        $('#eventDataTable tbody').on('click', '.add-alarm', function (e) {
+             });
+
+        // 'Detay' butonuna tıklama olayı
+
+        $('#eventDataTable tbody').on('click', '.btn-info', function (e) {
             e.stopPropagation();
             var data = dataTable.row($(this).parents('tr')).data();
-            alert('Alarm kurulacak: ' + data[0]); // data[0] ilk sütundaki veridir
+            // Modalı aç ve içeriği güncelle
+            $('#dataModalDetay').modal('show');
+            // Burada modal içerisindeki DataTable'ı güncellemek için gerekli işlemleri yapabilirsiniz
         });
 
     </script>
@@ -77,7 +88,7 @@
 
 
     <!-- Alarm Kur Modalı -->
-    <div class="modal fade" id="alarmModal" tabindex="-1" role="dialog" aria-labelledby="alarmModalLabel" aria-hidden="true">
+    @* <div class="modal fade" id="alarmModal" tabindex="-1" role="dialog" aria-labelledby="alarmModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -97,8 +108,9 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> *@
 
+   
     <!-- Modal Structure -->
     <div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -289,9 +301,39 @@
             $('#btnBuyLimit').on('click', function () {
                 var symbol = $('#modalSymbol').text();
                 var count = parseFloat($('#limitAmount').val());
-                var price = $('#modalLastPrice').text();
-                postBuyLimit(symbol, count, price);
+                var limitPrice = parseFloat($('#limitPrice').val());
+
+                checkPriceAndExecuteOrder(symbol, limitPrice, count);
             });
+
+
+
+            function checkPriceAndExecuteOrder(symbol, limitPrice, count) {
+                var livePrice = getCurrentLivePrice(symbol); // Canlı fiyatı alın
+
+                if (limitPrice === livePrice) {
+                    // Fiyatlar eşitse, market alımı yap
+                    postBuyMarket(symbol, count, livePrice);
+                    updateWaitingTrade(symbol, false); // WaitingTrade kolonunu false olarak güncelle
+                } else {
+                    // Fiyatlar eşit değilse, WaitingTrade'i true yap ve beklemeye başla
+                    updateWaitingTrade(symbol, true);
+                    waitForPriceMatch(symbol, limitPrice, count);
+                }
+            }
+
+            function waitForPriceMatch(symbol, limitPrice, count) {
+                var interval = setInterval(function () {
+                    var livePrice = getCurrentLivePrice(symbol);
+                    if (livePrice === limitPrice) {
+                        clearInterval(interval); // Eşleşme sağlandığında interval'ı durdur
+                        postBuyMarket(symbol, count, livePrice);
+                        updateWaitingTrade(symbol, false); // WaitingTrade kolonunu false olarak güncelle
+                    }
+                }, 1000); // Her 1 saniyede fiyat kontrolü (bu süreyi ihtiyaca göre ayarlayabilirsiniz)
+            }
+
+
 
 
             $('#btnSellLimit').on('click', function () {
@@ -356,15 +398,15 @@
 
 
 
-            let alarmPrice = null;
+            // let alarmPrice = null;
 
-            $('#alarmForm').on('submit', function (e) {
-                e.preventDefault(); // Formun normal gönderimini engeller
-                alarmPrice = $('#priceInput').val(); // Fiyatı alır
-                $('#alarmModal').modal('hide'); // Modalı kapatır
-                console.log('Alarm fiyatı ayarlandı:', alarmPrice);
-                // Burada alarmPrice'ı daha sonra kullanmak üzere saklayabilirsiniz
-            });
+            // $('#alarmForm').on('submit', function (e) {
+            //     e.preventDefault(); // Formun normal gönderimini engeller
+            //     alarmPrice = $('#priceInput').val(); // Fiyatı alır
+            //     $('#alarmModal').modal('hide'); // Modalı kapatır
+            //     console.log('Alarm fiyatı ayarlandı:', alarmPrice);
+            //     // Burada alarmPrice'ı daha sonra kullanmak üzere saklayabilirsiniz
+            // });
 
 
             socket.onerror = function (error) {
@@ -373,6 +415,10 @@
 
 
         });
+        
+
+     
+
 
         function postBuyMarket(symbol, count, price) {
             var postData = {
@@ -528,7 +574,7 @@
 
 
         }
-
+         
     </script>
 
     <!-- Bootstrap JS for Modal -->

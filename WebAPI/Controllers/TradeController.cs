@@ -62,5 +62,14 @@ namespace WebAPI.Controllers
             return SendResponse(response);
 
         }
+
+        [HttpGet("coinmarketdata")]
+        public async Task<IActionResult> CoinMarketData()
+        {
+            var currentUserId = CurrentUser.Get(HttpContext);
+            var response = await _tradeService.CoinMarketCap(currentUserId.GetValueOrDefault());
+            return SendResponse(response);
+
+        }
     }
 }

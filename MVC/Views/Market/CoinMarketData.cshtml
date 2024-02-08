@@ -1,0 +1,53 @@
+﻿@using MVC.Models.Datas
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@section customScripts {
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('table').DataTable();
+        }); // This closing brace and parenthesis were missing
+    </script>
+}
+r
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teknik Detaylar</title>
+    <link href="~/css/mytrades.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+</head>
+<body>
+    <h2 style="text-align: center;">Teknik Detaylar</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>İsim</th>
+                <th>CoinMarket Sıralaması</th>
+                <th>Maksimum Arz</th>
+                <th>Toplam Arz</th>
+                <th>Dolaşımdaki Arz</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Data)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.CmcRank</td>
+                    <td>@($"{item.MaxSupply:n0}")</td>
+                    <td>@($"{item.TotalSupply:n0}")</td>
+                    <td>@($"{item.CirculatingSupply:n0}")</td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+</html>

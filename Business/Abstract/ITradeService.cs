@@ -17,5 +17,7 @@ namespace Business.Abstract
         Task<ApiResponse<NoData>> LimitBuy(PostTrade dto,long currentUserId);
         Task<ApiResponse<NoData>> LimitSell(PostTrade dto, long currentUserId);
         Task<ApiResponse<Dictionary<string, decimal>>> OrtalamaMaliyet(long currentUserId);
+
+        Task<ApiResponse<CoinMarketCapResponse>> CoinMarketCap(long currentUserId);
     }
 }
