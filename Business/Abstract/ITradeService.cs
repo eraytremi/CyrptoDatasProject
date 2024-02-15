@@ -19,5 +19,7 @@ namespace Business.Abstract
         Task<ApiResponse<Dictionary<string, decimal>>> OrtalamaMaliyet(long currentUserId);
 
         Task<ApiResponse<CoinMarketCapResponse>> CoinMarketCap(long currentUserId);
+       
+
     }
 }

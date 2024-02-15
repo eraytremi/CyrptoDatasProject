@@ -1,4 +1,16 @@
 ﻿
+/*table {
+    width: 60%;*/ /* Tablonun genişliği */
+/*}
+
+table td, table th {
+        padding: 8px;*/ /* Hücre içi dolguları ayarlar */
+/*}
+
+table tbody tr {
+        height: 40px;*/ /* Satır yüksekliği */
+/*}*/
+
 
 .add-alarm {
     position: relative;
@@ -23,3 +35,6 @@
         color: black;
         z-index: 1; /* Diğer öğelerin üzerinde görünmesi için */
  }
+.transparent {
+    opacity: 0.9; 
+}

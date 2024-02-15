@@ -7,16 +7,17 @@
 
 
 @section customScripts {
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
-    <script>
+
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
         <script type="text/javascript" charset = "utf8" src = "https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js" ></script>
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+ 
     <script>
                 // DataTable başlatma
                 var dataTable = $('#eventDataTable').DataTable({
             "columnDefs": [
                 { "type": "html", "targets": 0 },
-                {
+                {   
                     "targets": 4, // Dördüncü sütun
                     "data": null, // Veri yok
                     "defaultContent": "<button class='btn btn-info btn-sm'>Detay</button>", // Buton ekleme
@@ -63,7 +64,7 @@
 <body>
  
 
-    <div class="container mt-5">
+    <div class="container mt-5 transparent">
         <label for="pairSelect">Parite Seç:</label>
         <select id="pairSelect">
             <option value="">All</option>
@@ -71,7 +72,7 @@
             <option value="ETH">ETH</option>
             <option value="BTC">BTC</option>
         </select>
-        <table id="eventDataTable" class="display">
+        <table id="eventDataTable" class="display transparent">
             <thead>
                 <tr>
                     <th>Sembol</th>
@@ -113,7 +114,8 @@
    
     <!-- Modal Structure -->
     <div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        
+    <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalTitle">Trade Details</h5>
@@ -432,11 +434,11 @@
                 method: 'POST',
                 data: postData,
                 success: function (response) {
-                    if (response.isSuccess) {
-                        alert("Başarılı: " + response.message);
+                    if (response.IsSuccess) {
+                        alert("Başarılı: " + response.Message);
                         Swal.fire({
                             title: 'Başarılı!',
-                            text: response.message,
+                            text: response.Message,
                             icon: 'success',
                             confirmButtonText: 'Tamam'
                         });
@@ -472,11 +474,11 @@
                 method: 'POST',
                 data: postData,
                 success: function (response) {
-                    if (response.isSuccess) {
-                        alert("Başarılı: " + response.message);
+                    if (response.IsSuccess) {
+                        alert("Başarılı: " + response.Message);
                         Swal.fire({
                             title: 'Başarılı!',
-                            text: response.message,
+                            text: response.Message,
                             icon: 'success',
                             confirmButtonText: 'Tamam'
                         });
@@ -510,19 +512,19 @@
                 method: 'POST',
                 data: postData,
                 success: function (response) {
-                    if (response.isSuccess) {
-                        alert("Başarılı: " + response.message);
+                    if (response.IsSuccess) {
+                        alert("Başarılı: " + response.Message);
                         Swal.fire({
                             title: 'Başarılı!',
-                            text: response.message,
+                            text: response.Message,
                             icon: 'success',
                             confirmButtonText: 'Tamam'
                         });
                     } else {
-                        alert("Hata: " + response.message);
+                        alert("Hata: " + response.Message);
                         Swal.fire({
                             title: 'Hata!',
-                            text: response.message,
+                            text: response.Message,
                             icon: 'error',
                             confirmButtonText: 'Tamam'
                         });
@@ -549,11 +551,11 @@
                 method: 'POST',
                 data: postData,
                 success: function (response) {
-                    if (response.isSuccess) {
-                        alert("Başarılı: " + response.message);
+                    if (response.IsSuccess) {
+                        alert("Başarılı: " + response.Message);
                         Swal.fire({
                             title: 'Başarılı!',
-                            text: response.message,
+                            text: response.Message,
                             icon: 'success',
                             confirmButtonText: 'Tamam'
                         });

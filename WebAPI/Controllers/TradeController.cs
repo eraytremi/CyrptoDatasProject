@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Business.Abstract;
+using DataAccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -60,7 +61,6 @@ namespace WebAPI.Controllers
             var currentUserId = CurrentUser.Get(HttpContext);
             var response = await _tradeService.OrtalamaMaliyet(currentUserId.GetValueOrDefault());
             return SendResponse(response);
-
         }
 
         [HttpGet("coinmarketdata")]

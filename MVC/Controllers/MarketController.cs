@@ -34,7 +34,7 @@ namespace MVC.Controllers
             var response = await _httpApiService.PostDataAsync<ApiResponse<PostMarketItem>>("/Trade/buymarket", JsonSerializer.Serialize(post), token:token.Data.Token);
                 
             if (response.StatusCode == 200)
-            {
+            {   
                 return Json(new { IsSuccess = true, Message = "Market satış işlemi başarıyla gerçekleşti" ,response});
 
             }

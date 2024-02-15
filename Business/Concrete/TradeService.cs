@@ -17,6 +17,7 @@ using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -266,6 +267,8 @@ namespace Business.Concrete
 
             return ApiResponse<NoData>.Success(StatusCodes.Status200OK);
         }
+
+
         public async Task<ApiResponse<NoData>> MarketBuy(PostTrade dto, long currentUserId)
         {
             var getUser = _context.Users.SingleOrDefault(p => p.Id == currentUserId);

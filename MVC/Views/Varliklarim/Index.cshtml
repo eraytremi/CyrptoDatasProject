@@ -21,26 +21,7 @@
     <title>Varlıklarım</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
-
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table, th, td {
-            border: 1px solid black;
-        }
-
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
+    <link href="~/css/varliklarim.css" rel="stylesheet" />
 </head>
 <body>
     <h2 style="text-align: center;">Varlıklarım</h2>
@@ -49,7 +30,7 @@
         <canvas id="varliklarChart"></canvas>
     </div>
 
-    <table>
+    <table class="container mt-5 my-table">
         <thead>
             <tr>
                 <th>Varlık İsmi</th>
