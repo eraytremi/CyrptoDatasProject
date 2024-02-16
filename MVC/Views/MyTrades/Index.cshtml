@@ -7,6 +7,25 @@
     <script>
         $(document).ready(function () {
             $('table').DataTable();
+            var table = $('#myTradesTable').DataTable({
+                serverSide: true,
+                processing: true,
+                ajax: {
+                    url: '/user/getmytrades',
+                    type: 'POST',
+                    data: function (d) {
+                        d.PageNumber = this.page.info().page + 1;
+                        d.PageSize = this.page.info().length;
+                    },
+                    dataSrc: 'Data' // API'nin döndüğü verinin kaynağını belirtiyoruz
+                }
+            });
+
+            // Sayfalama değiştiğinde DataTables, AJAX isteğini yeniden gönderir
+            $('#myTradesTable').on('page.dt', function () {
+                table.ajax.reload();
+            });
+
         });
     </script>
 }
@@ -24,7 +43,7 @@
 </head>
 <body>
     <h2  style="text-align: center;">Geçmiş Trade İşlemleri</h2>
-    <table class="container mt-2 ">
+    <table id="myTradesTable" class="container mt-5">
         <thead>
             <tr>
                 <th>İşlem Tarihi</th>
@@ -45,5 +64,9 @@
             }
         </tbody>
     </table>
+
+    <script>
+
+    </script>
 </body>
 </html>

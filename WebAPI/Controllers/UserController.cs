@@ -1,5 +1,8 @@
 ﻿using Business.Abstract;
+using Business.Exceptions;
 using Infrastructure.Utilities.Security.JWT;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Model.Dtos.UserDto;
 using System.IdentityModel.Tokens.Jwt;
@@ -40,13 +43,16 @@ namespace WebAPI.Controllers
             return SendResponse(response);
         }
 
-
-        [HttpGet("getmytrades")]
-        public async Task<IActionResult> GetMyTrades()
+        [HttpPost("getmytrades")]
+        public async Task<IActionResult> GetMyTrades([FromQuery]int pageNumber, int pageSize, string searchTerm)
         {
             var currentUserId = CurrentUser.Get(HttpContext);
-            var response = await _userService.GetMyTrades(currentUserId.GetValueOrDefault());
-            return SendResponse(response);
+            if (currentUserId==null)
+            {
+                throw new BadRequestException("kullanıcı girişi yok");
+            }
+            var response = await _userService.GetMyTrades(currentUserId.GetValueOrDefault(), pageNumber, pageSize, searchTerm);
+            return Ok(response);
         }
     }
 }

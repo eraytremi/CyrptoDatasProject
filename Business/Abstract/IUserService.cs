@@ -1,5 +1,7 @@
 ﻿using Infrastructure;
+using Infrastructure.Pagination;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Model;
 using Model.Dtos.TradeDto;
 using Model.Dtos.UserDto;
 using System;
@@ -14,6 +16,6 @@ namespace Business.Abstract
     {
         ApiResponse<GetUserDto> Login(string email, string password);
         Task<ApiResponse<Varliklar>> GetUserVarliklar(long UserId);
-        Task<ApiResponse<List<GetTrade>>> GetMyTrades(long UserId);
+        Task<PaginatedList<Trade>> GetMyTrades(long UserId, int page, int pageSize, string searchTerm);
     }
 }

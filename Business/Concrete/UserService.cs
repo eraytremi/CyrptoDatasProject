@@ -2,6 +2,7 @@
 using Business.Abstract;
 using DataAccess;
 using Infrastructure;
+using Infrastructure.Pagination;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Model;
@@ -60,11 +61,19 @@ namespace Business.Concrete
             return ApiResponse<Varliklar>.Success(StatusCodes.Status200OK,kullaniciVarliklari);
         }
 
-        public async Task<ApiResponse<List<GetTrade>>> GetMyTrades(long UserId)
+        public async Task<PaginatedList<Trade>> GetMyTrades(long UserId, int pageNumber, int pageSize, string searchTerm)
         {
-            var getTrades= await _context.Trades.Where(p=>p.UserId == UserId).ToListAsync();
-            var mapping = _mapper.Map<List<GetTrade>>(getTrades);
-            return  ApiResponse<List<GetTrade>>.Success(StatusCodes.Status200OK,mapping);
+            var getTrades = await _context.Trades.Where(p => p.UserId == UserId).ToListAsync();
+            IQueryable<Trade> query = _context.Trades;
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(p => EF.Functions.Like(p.Symbol, $"%{searchTerm}%"));
+            }
+
+            return await PaginatedList<Trade>.ToPagedList(query.OrderBy(p=>p.Id), pageNumber, pageSize);
         }
+
+
     }
 }

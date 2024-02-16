@@ -25,52 +25,67 @@
 </head>
 <body>
     <h2 style="text-align: center;">Varlıklarım</h2>
+    <br />
 
-    <div>
-        <canvas id="varliklarChart"></canvas>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <div>
+                    <canvas id="varliklarChart"></canvas>
+                </div>
+            </div>
+
+            <div class="col">
+                <table class="container mt-5 my-table" style="max-width:800px">
+                    <thead>
+                        <tr>
+                            <th>Varlık İsmi</th>
+                            <th>Değeri </th>
+                            <th>Ortalama Maliyet</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Varliklar.Bakiyeler)
+                        {
+                            <tr>
+                                <td>@item.DovizTipi </td>
+                                <td>@item.ParaMiktari </td>
+                                <td>N/A</td>
+                            </tr>
+                        }
+
+                        @foreach (var item in Model.Varliklar.Coinler)
+                        {
+                            <tr id="coin_@item.Symbol">
+                                <td>@item.Symbol</td>
+                                <td id="value_@item.Symbol"></td>
+                                <td>
+                                    @if (Model.AverageCosts.Cost.TryGetValue(item.Symbol, out var averageCost))
+                                    {
+                                        @averageCost
+                                    }
+                                    else
+                                    {
+                                        @:N/A
+                                    }
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+        
+
     </div>
 
-    <table class="container mt-5 my-table">
-        <thead>
-            <tr>
-                <th>Varlık İsmi</th>
-                <th>Değeri </th>
-                <th>Ortalama Maliyet</th>
-            </tr>
-        </thead>
-        <tbody>
 
-            @foreach (var item in Model.Varliklar.Bakiyeler)
-            {
-                <tr>
-                    <td>@item.DovizTipi </td>
-                    <td>@item.ParaMiktari </td>
-                    <td>N/A</td>
-                </tr>
+    
 
-            }
-
-            @foreach (var item in Model.Varliklar.Coinler)
-            {
-                <tr id="coin_@item.Symbol">
-                    <td>@item.Symbol</td>
-                    <td id="value_@item.Symbol"></td>
-                    <td>
-                        @if (Model.AverageCosts.Cost.TryGetValue(item.Symbol, out var averageCost))
-                        {
-                            @averageCost
-                        }
-                        else
-                        {
-                            @:N/A
-                        }
-                    </td>
-                </tr>
-            }
-
-
-        </tbody>
-    </table>
+   
 
     <script>
 
