@@ -6,26 +6,85 @@
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
     <script>
         $(document).ready(function () {
-            $('table').DataTable();
-            var table = $('#myTradesTable').DataTable({
-                serverSide: true,
-                processing: true,
-                ajax: {
-                    url: '/user/getmytrades',
-                    type: 'POST',
-                    data: function (d) {
-                        d.PageNumber = this.page.info().page + 1;
-                        d.PageSize = this.page.info().length;
-                    },
-                    dataSrc: 'Data' // API'nin döndüğü verinin kaynağını belirtiyoruz
+            var currentPage = 1;
+            var selectedRowCount = 5;
+            var totalRows = $("#myDataTable tbody tr").length;
+            var totalPage = Math.ceil(totalRows / selectedRowCount);
+
+            updatePage();
+
+            function updatePage() {
+                showDataPage(currentPage, selectedRowCount);
+                updatePaginationButtons(currentPage);
+            }
+
+            // Sayfalama yapan butonların herhangi birine tıklandığında gerçekleşecek komutlar
+            $(".pagination").on("click", "button.page-link", function () {
+                var buttonText = $(this).text();
+                if (buttonText === "Önceki" && currentPage > 1) {
+                    currentPage--;
+                } else if (buttonText === "Sonraki" && currentPage < totalPage) {
+                    currentPage++;
+                } else {
+                    currentPage = parseInt(buttonText);
                 }
+                updatePage();
             });
 
-            // Sayfalama değiştiğinde DataTables, AJAX isteğini yeniden gönderir
-            $('#myTradesTable').on('page.dt', function () {
-                table.ajax.reload();
-            });
+            // İlgili sayfadaki verileri listeleyen metot
+            function showDataPage(currentPage, selectedRowCount) {
+                var startIndex = (currentPage - 1) * selectedRowCount;
+                var endIndex = startIndex + selectedRowCount;
 
+                $("#myDataTable tbody tr").hide();
+                $("#myDataTable tbody tr").slice(startIndex, endIndex).show();
+            }
+
+            // Sayfalama için gerekli olan butonların oluşturulmasını sağlayan metot
+            function updatePaginationButtons(currentPage) {
+                $(".pagination").empty();
+                var maxButtons = 3;
+                var startButton = currentPage - 1;
+
+                if (startButton < 1) {
+                    startButton = 1;
+                }
+                for (var i = startButton; i <= Math.min(totalPage, startButton + maxButtons - 1); i++) {
+                    if (i === currentPage) {
+                        $(".pagination").append("<li class='page-item active'><button class='page-link'>" + i + "</button></li>");
+                    } else {
+                        $(".pagination").append("<li class='page-item'><button class='page-link'>" + i + "</button></li>");
+                    }
+                }
+
+                if (currentPage > 1) {
+                    $(".pagination").prepend("<li class='page-item'><button id='previousPage' class='page-link'>Önceki</button></li>");
+                }
+
+                if (currentPage < totalPage) {
+                    $(".pagination").append("<li class='page-item'><button id='nextPage' class='page-link'>Sonraki</button></li>");
+                }
+            }
+
+            // $("#txtSearch").on("keyup", function () {
+            //     var searchText = $(this).val().toLowerCase();
+            //     if (searchText.length == 0) {
+            //         currentPage = 1;
+            //         showDataPage(currentPage, selectedRowCount);
+            //         updatePaginationButtons(currentPage);
+            //     }
+            //     else {
+            //         // Aranan ifadeleri listeleyen komutlar
+            //         $("#myDataTable tbody tr").each(function () {
+            //             var rowData = $(this).text().toLowerCase();
+            //             if (rowData.indexOf(searchText) === -1) {
+            //                 $(this).hide();
+            //             } else {
+            //                 $(this).show();
+            //             }
+            //         });
+            //     }
+            // });
         });
     </script>
 }
@@ -43,30 +102,47 @@
 </head>
 <body>
     <h2  style="text-align: center;">Geçmiş Trade İşlemleri</h2>
-    <table id="myTradesTable" class="container mt-5">
-        <thead>
-            <tr>
-                <th>İşlem Tarihi</th>
-                <th>Fiyat</th>
-                <th>Miktar</th>
-                <th>Sembol</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.Time</td>
-                    <td>@item.Price</td>
-                    <td>@item.Count</td>
-                    <td>@item.Symbol</td>
+
+    <div class="container">
+        @* <input id="txtSearch" type="text" class="form-control" style="color: black;" placeholder="Sütunlarda Ara..."> *@
+        <table id="myDataTable" class="table table-striped w-100 my-2">
+            <!-- tablo başlığı etiketi başlangıç -->
+            <thead>
+                <tr class="text-center fst-italic fs-5">
+
+                    <th>İşlem Tarihi</th>
+                    <th>Fiyat</th>
+                    <th>Miktar</th>
+                    <th>Sembol</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <!-- tablo başlığı etiketi bitiş -->
+            <!-- tablo içeriği etiketi başlangıç -->
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Time</td>
+                        <td>@item.Price</td>
+                        <td>@item.Count</td>
+                        <td>@item.Symbol</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
 
-    <script>
+        <div class="d-flex justify-content-between align-items-center">
+            <!-- dosya işlemleri grup etiketi başlangıç -->
+            <div>
+            </div>
+            <!-- sayfa sayısı etiketi başlangıç -->
+            <div class="text-end">
+                <ul class="pagination" style="margin-bottom: 0;">
 
-    </script>
+                </ul>
+            </div>
+            <!-- sayfa sayısı etiketi bitiş -->
+        </div>
+    </div>
 </body>
 </html>

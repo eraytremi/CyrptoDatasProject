@@ -25,7 +25,7 @@ namespace Infrastructure.Pagination
             PageSize = pageSize;
             AddRange(items);
         }
-
+            
         public static async Task<PaginatedList<T>> ToPagedList(IQueryable<T> source,int pageNumber,int pageSize)
         {   
             var count = await  source.CountAsync();

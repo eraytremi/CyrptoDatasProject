@@ -1,4 +1,5 @@
 ﻿using Business.Abstract;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Model;
 using System;
@@ -11,6 +12,7 @@ namespace Business.Concrete
 {
     public class TickerResultService : ITickerResultService
     {
+
         private readonly IWebSocketBinance _webSocket;
         public TickerResultService(IWebSocketBinance webSocket)
         {
@@ -23,5 +25,6 @@ namespace Business.Concrete
             var tickerStats = await _webSocket.ReceiveAsync<List<TickerResult>>();
             return tickerStats;
         }
+       
     }
 }

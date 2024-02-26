@@ -61,17 +61,32 @@ namespace Business.Concrete
             return ApiResponse<Varliklar>.Success(StatusCodes.Status200OK,kullaniciVarliklari);
         }
 
-        public async Task<PaginatedList<Trade>> GetMyTrades(long UserId, int pageNumber, int pageSize, string searchTerm)
+        public async Task<ApiResponse<List<GetTrade>>> GetMyTrades(long UserId)
         {
-            var getTrades = await _context.Trades.Where(p => p.UserId == UserId).ToListAsync();
-            IQueryable<Trade> query = _context.Trades;
+            var getTrades =  _context.Trades.Where(p => p.UserId == UserId);
 
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                query = query.Where(p => EF.Functions.Like(p.Symbol, $"%{searchTerm}%"));
-            }
+            var mapping = await getTrades.
+                        Select(t => new GetTrade
+                        {
+                            Id = t.Id,
+                            Price = t.Price,
+                            Count = t.Count,
+                            Symbol = t.Symbol,
+                            Time = t.Time,
+                            UserId = UserId
+                        }).ToListAsync();
+            return ApiResponse<List<GetTrade>>.Success(StatusCodes.Status200OK, mapping);
 
-            return await PaginatedList<Trade>.ToPagedList(query.OrderBy(p=>p.Id), pageNumber, pageSize);
+            //IQueryable<Trade> query = _context.Trades;
+
+            //if (!string.IsNullOrEmpty(searchTerm))
+            //{
+            //    query = query.Where(p => EF.Functions.Like(p.Symbol, $"%{searchTerm}%"));
+            //}
+
+            //return await PaginatedList<Trade>.ToPagedList(query.OrderBy(p=>p.Id), pageNumber, pageSize);
+
+
         }
 
 

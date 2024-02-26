@@ -1,0 +1,30 @@
+﻿@page "/"
+
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+    
+
+<Counter IncrementAmount="20"/>
+<input @onchange="InputChanged" />
+<p>@message</p>
+
+
+<input @bind="text"/>
+<button @onclick="() => text = string.Empty">Clear</button>
+<p>@text</p>
+
+
+@code {
+    string text = "";
+    string message = "";
+
+    void InputChanged(ChangeEventArgs e)
+    {
+        message = (string)e.Value;
+    }
+
+}

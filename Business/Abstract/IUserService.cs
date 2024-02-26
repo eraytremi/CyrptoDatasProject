@@ -16,6 +16,6 @@ namespace Business.Abstract
     {
         ApiResponse<GetUserDto> Login(string email, string password);
         Task<ApiResponse<Varliklar>> GetUserVarliklar(long UserId);
-        Task<PaginatedList<Trade>> GetMyTrades(long UserId, int page, int pageSize, string searchTerm);
+        Task<ApiResponse<List<GetTrade>>> GetMyTrades(long UserId);
     }
 }

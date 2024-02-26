@@ -13,12 +13,11 @@ namespace Model
         public int Id { get; set; }
         public long UserId { get; set; }
         public DateTime Time { get; set; }  
-        public bool isBuy { get; set; } = false;
-        public bool isSell { get; set; } = false;
+        public bool isBuy { get; set; } 
+        public bool isSell { get; set; } 
         public double Count { get; set; } 
         public string Symbol { get; set; }
-        public bool WaitingTrades { get; set; } = false;
-        [Column(TypeName = "decimal(18, 8)")]
+        public bool WaitingTrades { get; set; } 
         public decimal Price { get; set; }
         [ForeignKey("UserId")]
         public User? User { get; set; }

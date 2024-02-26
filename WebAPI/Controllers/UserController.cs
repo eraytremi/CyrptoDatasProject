@@ -43,15 +43,15 @@ namespace WebAPI.Controllers
             return SendResponse(response);
         }
 
-        [HttpPost("getmytrades")]
-        public async Task<IActionResult> GetMyTrades([FromQuery]int pageNumber, int pageSize, string searchTerm)
+        [HttpGet("getmytrades")]
+        public async Task<IActionResult> GetMyTrades()
         {
             var currentUserId = CurrentUser.Get(HttpContext);
             if (currentUserId==null)
             {
                 throw new BadRequestException("kullanıcı girişi yok");
             }
-            var response = await _userService.GetMyTrades(currentUserId.GetValueOrDefault(), pageNumber, pageSize, searchTerm);
+            var response = await _userService.GetMyTrades(currentUserId.GetValueOrDefault());
             return Ok(response);
         }
     }

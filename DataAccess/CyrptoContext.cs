@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Model;
+using Model.PastDatas;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace DataAccess
         public DbSet<ParaTipi> ParaTipi { get; set; }
         public DbSet<Bakiye> Bakiye { get; set; }
         public DbSet<CoinList> CoinList { get; set; }
-
+        public DbSet<GetPastDatas> PastDatas { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer("Data Source = DESKTOP-R04PVQ3\\SQLEXPRESS; Database = CyrptoTradeData; Trusted_Connection = true; TrustServerCertificate = true;");

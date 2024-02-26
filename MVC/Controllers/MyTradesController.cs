@@ -18,11 +18,11 @@ namespace MVC.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(FilterGetMyTrades dto)
+        public async Task<IActionResult> Index()
         { 
             var token = HttpContext.Session.GetObject<ApiResponse<UserGetDto>>("ActivePerson");
-            var response = await _service.PostDataAsync<PaginationList<MyTradesItem>>("/user/getmytrades",token.Data.Token,JsonSerializer.Serialize(dto));
-            return View(response);
+            var response = await _service.GetDataAsync<ApiResponse<List<MyTradesItem>>>("/user/getmytrades",token.Data.Token);
+            return View(response.Data);
         }
 
        
