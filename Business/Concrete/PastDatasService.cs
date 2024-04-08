@@ -52,9 +52,7 @@ namespace Business.Concrete
                         _cyrptoContext.SaveChanges();
 
                     }
-                }
-                
-
+                }        
             }
           
         }

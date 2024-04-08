@@ -21,12 +21,14 @@ namespace DataAccess
         {
         }
 
+
         public DbSet<Trade> Trades { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<ParaTipi> ParaTipi { get; set; }
         public DbSet<Bakiye> Bakiye { get; set; }
         public DbSet<CoinList> CoinList { get; set; }
         public DbSet<GetPastDatas> PastDatas { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer("Data Source = DESKTOP-R04PVQ3\\SQLEXPRESS; Database = CyrptoTradeData; Trusted_Connection = true; TrustServerCertificate = true;");
