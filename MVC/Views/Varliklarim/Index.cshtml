@@ -3,12 +3,25 @@
 }
 
 @model MVC.Models.ViewModels.VarlıklarimVM
- 
+
 @section customScripts {
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+
     <script>
-        $(document).ready(function () {
-            $('table').DataTable();
+     
+        var dataTable = $('#table').DataTable({
+
+            language: {
+                search: "Ara:",
+                paginate: {
+                    previous: "Önceki",
+                    next: "Sonraki"
+                },
+                info: "_TOTAL_ kayıttan _START_ - _END_ arasındaki kayıtlar gösteriliyor",
+                lengthMenu: "Sayfada _MENU_ kayıt göster"
+            }
+           
         });
     </script>
 }
@@ -20,7 +33,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Varlıklarım</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
     <link href="~/css/varliklarim.css" rel="stylesheet" />
 </head>
 <body>
@@ -29,14 +41,14 @@
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col">
+            <div class="col-5">
                 <div>
                     <canvas id="varliklarChart"></canvas>
                 </div>
             </div>
 
-            <div class="col">
-                <table class="container mt-5 my-table" style="max-width:800px">
+            <div class="col-5">
+                <table id="table"  class="container mt-5 my-table" style="max-width:700px" >
                     <thead>
                         <tr>
                             <th>Varlık İsmi</th>
@@ -78,38 +90,38 @@
             </div>
         </div>
 
-        
+
 
     </div>
 
 
-    
 
-   
+
+
 
     <script>
 
-    var coinData = @Html.Raw(Json.Serialize(Model.Varliklar.Coinler.ToDictionary(coin => coin.Symbol, coin => coin.Count)));
+        var coinData = @Html.Raw(Json.Serialize(Model.Varliklar.Coinler.ToDictionary(coin => coin.Symbol, coin => coin.Count)));
 
-    var varliklarData = {
-        labels: [],
-        datasets: [{
-            data: [],
-            backgroundColor: [],
-            borderWidth: 1
-        }]
-    };
+        var varliklarData = {
+            labels: [],
+            datasets: [{
+                data: [],
+                backgroundColor: [],
+                borderWidth: 1
+            }]
+        };
 
 
 
-    @foreach (var item in Model.Varliklar.Coinler)
-    {
-        @:varliklarData.labels.push("@item.Symbol");
-        @:varliklarData.datasets[0].data.push(@item.Count);
-        @:varliklarData.datasets[0].backgroundColor.push(randomColor());
-    }
+        @foreach (var item in Model.Varliklar.Coinler)
+        {
+            @:varliklarData.labels.push("@item.Symbol");
+            @:varliklarData.datasets[0].data.push(@item.Count);
+            @:varliklarData.datasets[0].backgroundColor.push(randomColor());
+        }
 
-        var ctx = document.getElementById('varliklarChart').getContext('2d');
+                var ctx = document.getElementById('varliklarChart').getContext('2d');
         var myChart = new Chart(ctx, {
             type: 'pie',
             data: varliklarData,
@@ -139,14 +151,14 @@
                     if (valueElement) {
                         valueElement.innerText = coinValue.toFixed(2);
                     }
- 
+
                 }
             });
         };
 
-    socket.onerror = function (error) {
-        console.log('WebSocket Error: ' + error);
-    };
+        socket.onerror = function (error) {
+            console.log('WebSocket Error: ' + error);
+        };
     </script>
 
 

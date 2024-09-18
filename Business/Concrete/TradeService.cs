@@ -1,29 +1,16 @@
 ﻿using Business.Abstract;
 using DataAccess;
 using Infrastructure;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Model;
 using Model.CoinMarketCap;
-using Model.Dtos;
 using Model.Dtos.TradeDto;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-    
+using WebSocketSharp;
+
+
 namespace Business.Concrete
 {
     public class TradeService : ITradeService
@@ -32,12 +19,12 @@ namespace Business.Concrete
         private const string url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest";
         private const string urlNews = "https://pro-api.coinmarketcap.com/v1/content/latest";
         private const string urlTrendingTokens = "https://pro-api.coinmarketcap.com/v1/community/trending/token";
-        private const string urlHistoricalDatas= "https://api.binance.com/api/v3/aggTrades";
 
         private readonly ITickerResultService? _tickerResult;
         private readonly CyrptoContext _context;
         Trade trade = new();
         CoinList coinListTable = new();
+
         public TradeService(ITickerResultService? tickerResult, CyrptoContext context)
         {
             _tickerResult = tickerResult;
@@ -59,7 +46,6 @@ namespace Business.Concrete
                 var data = JsonConvert.DeserializeObject<CoinMarketCapResponse>(responseBody);
 
                 //Volume verilerini getir 
-
 
                 return ApiResponse<CoinMarketCapResponse>.Success(StatusCodes.Status200OK, data);
             }
@@ -84,9 +70,7 @@ namespace Business.Concrete
                 return ApiResponse<CoinMarketCapNewsResponse>.Success(StatusCodes.Status200OK, data);
             }
 
-
         }
-
 
         public async Task<ApiResponse<TrendingTokens>> CoinMarketCapGetTrendingTokens(long currentUserId)
         {
@@ -107,13 +91,10 @@ namespace Business.Concrete
 
         }
 
-       
-
         static long ConvertToUnixTimestamp(DateTime dateTime)
         {
             return (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
         }
-
         //public async Task<ApiResponse<NoData>> LimitBuy(PostTrade dto, long currentUserId)
         //{
         //    var getUser = _context.Users.SingleOrDefault(p => p.Id == currentUserId);
@@ -176,6 +157,8 @@ namespace Business.Concrete
 
         //                    //coinlist tablo güncelle
         //                    var coinList = _context.CoinList.FirstOrDefault(p => p.Symbol == dto.Symbol);
+        //                    CoinList coinListTable = new();
+
         //                    if (coinList != null)
         //                    {
 
@@ -319,7 +302,6 @@ namespace Business.Concrete
 
         //    return ApiResponse<NoData>.Success(StatusCodes.Status200OK);
         //}
-
 
         public async Task<ApiResponse<NoData>> MarketBuy(PostTrade dto, long currentUserId)
         {
@@ -479,7 +461,6 @@ namespace Business.Concrete
                     {
                         return ApiResponse<NoData>.Fail(StatusCodes.Status400BadRequest, $"Varlıklarında {dto.Symbol} yok!");
 
-
                     }
                 }
 
@@ -519,34 +500,145 @@ namespace Business.Concrete
 
         }
 
-       
-        //    public Task<ApiResponse<List<TickerResult>>> TickerList(long currentUserId)
-        //    {
-        //        var websocket = new WebSocketApi("wss://stream.binance.com:9443/ws/!ticker@arr");
 
-        //        websocket.OnMessageReceived(
-        //            async (data) =>
-        //            {
-        //                Console.WriteLine(data);
-        //                await Task.CompletedTask;
-        //            }, CancellationToken.None);
+        public async Task<ApiResponse<NoData>> LimitBuy(PostTrade dto, long currentUserId)
+        {
+            var getUser = _context.Users.SingleOrDefault(p => p.Id == currentUserId);
 
-        //        await websocket.ConnectAsync(CancellationToken.None);
 
-        //        await websocket.AccountTrade.NewOrderAsync(symbol: "BNBUSDT", side: Models.Side.BUY, type: Models.OrderType.LIMIT, timeInForce: Models.TimeInForce.GTC, price: 300, quantity: 1, cancellationToken: CancellationToken.None);
+            //contextten bakiyeleri getir
+            var getList = _context.Bakiye.ToList();
 
-        //        await Task.Delay(5000);
-        //        Console.WriteLine("Disconnect with WebSocket API Server");
-        //        await websocket.DisconnectAsync(CancellationToken.None);
-        //    }
+            //paratipi tablosunu bakiyeye include et.
+            var includeListParaTipi = _context.Bakiye
+                     .Include(b => b.ParaTipi)
+                     .Where(P => P.UserId == currentUserId)
+                     .ToList();
 
-        //    private async Task<List<TickerResult>> GetCurrentDatas()
-        //    {
+            //seçtiğin değerin paritesi sende var mı?
+            string symbol = dto.Symbol;
+            foreach (var item in includeListParaTipi)
+            {
 
-        //        var datas = await _tickerResult.GetDatas();
-        //        return datas;
-        //    }
+                var existDöviz = dto.Symbol.Contains(item.ParaTipi.DövizTipi);
+                if (existDöviz)
+                {
+                    var convert = decimal.Parse(dto.Price);
+                    decimal convertedValue = convert / 100000000M;
 
-        //}
+
+                    //aynı ise alınacak adet ile o anki fiyatı ile çarp. Maliyet*
+                    var buyTrade = convertedValue * Convert.ToDecimal(dto.Count);
+                    if (buyTrade > item.ParaMiktarı)
+                    {
+                        return ApiResponse<NoData>.Fail(StatusCodes.Status400BadRequest, "Bakiye Yetersiz");
+
+                    }
+
+                    using var ws = new WebSocket("wss://stream.binance.com:9443/ws/!ticker@arr");
+
+                    // Bağlantı açıldığında çalışacak event
+                    ws.OnOpen += (sender, e) =>
+                    {
+                        Console.WriteLine("Bağlantı açıldı.");
+                    };
+
+                    // Yeni bir mesaj geldiğinde çalışacak event
+                    ws.OnMessage += (sender, e) =>
+                    {
+                        // JSON verisini TickerData modeline dönüştür
+                        var tickerData = JsonConvert.DeserializeObject<TickerResult[]>(e.Data);
+                        var getCurrency = tickerData.SingleOrDefault(p => p.Symbol == dto.Symbol);
+                        // Tüm verileri konsola yazdır
+
+
+                        if (getCurrency != null && getCurrency.LastPrice == dto.Price)
+                        {
+                            //bakiyeden alınan miktarı düş.
+                            var result = item.ParaMiktarı - buyTrade;
+                            item.UserId = currentUserId;
+                            item.ParaMiktarı = result;
+                            _context.Bakiye.Update(item);
+                            _context.SaveChangesAsync();
+
+                            //yapılan işlemi trade tablosuna kaydet
+                            trade.UserId = currentUserId;
+                            trade.Time = DateTime.Now;
+                            trade.isBuy = true;
+                            trade.Count = dto.Count;
+                            trade.Symbol = symbol;
+                            trade.WaitingTrades = false;
+                            _context.Trades.Add(trade);
+                            _context.SaveChangesAsync();
+
+                            //coinlist tablo güncelle
+                            var coinList = _context.CoinList.FirstOrDefault(p => p.Symbol == dto.Symbol);
+                            if (coinList != null)
+                            {
+
+                                if (coinList.UserId == currentUserId)
+                                {
+                                    coinList.Count += dto.Count;
+                                    _context.CoinList.Update(coinList);
+                                    _context.SaveChangesAsync();
+                                }
+                            }
+
+                            else
+                            {
+                                coinListTable.UserId = currentUserId;
+                                coinListTable.Count = dto.Count;
+                                coinListTable.Symbol = dto.Symbol;
+                                _context.CoinList.Add(coinListTable);
+                                _context.SaveChangesAsync();
+                            }
+
+
+
+                            if (getCurrency != null && getCurrency.LastPrice != dto.Price)
+                            {
+                                //yapılan işlemi trade tablosuna kaydet
+                                trade.UserId = currentUserId;
+                                trade.Time = DateTime.Now;
+                                trade.isBuy = true;
+                                trade.Count = dto.Count;
+                                trade.Symbol = symbol;
+                                trade.WaitingTrades = true;
+                                _context.Trades.Add(trade);
+                                _context.SaveChangesAsync();
+                                Task.Delay(1000);
+                            }
+                            if (getCurrency == null)
+                            {
+                                throw new Exception("coin listede yok");
+                            }
+
+                            ws.OnClose += (sender, e) =>
+                            {
+                                Console.WriteLine("Bağlantı kapandı.");
+                            };
+
+                            // Bağlantıyı başlat
+                            ws.Connect();
+
+                            // Konsoldan çıkmak için bir tuşa basılmasını bekleyin
+                            Console.ReadKey(true);
+
+                            // Bağlantıyı kapat
+                            ws.Close();
+
+
+                        }
+                    };
+
+
+
+
+                }
+
+            }
+            return ApiResponse<NoData>.Success(StatusCodes.Status200OK);
+
+        }
     }
 }

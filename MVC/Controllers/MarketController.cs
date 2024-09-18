@@ -35,7 +35,7 @@ namespace MVC.Controllers
                 
             if (response.StatusCode == 200)
             {   
-                return Json(new { IsSuccess = true, Message = "Market satış işlemi başarıyla gerçekleşti" ,response});
+                return Json(new { IsSuccess = true, Message = "Market satış işlemi başarıyla gerçekleşti" ,response.Data});
 
             }
             else

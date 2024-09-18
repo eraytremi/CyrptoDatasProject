@@ -1,4 +1,4 @@
-﻿ <!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -13,42 +13,40 @@
     <link href="~/css/utils.css" rel="stylesheet" />
     <!-- theme-mode.css dosyası bağlantı etiketi -->
     <link href="~/css/theme-mode.css" rel="stylesheet" />
-
+  
     @RenderSection("customStyles", false)
 
     <style>
-      
-    </style>
-    <title>CyproData | @ViewBag.Title</title>       
-</head>
-<body style="background-image: url('/images/bgImage.png'); background-size: cover;">
-             <div>
-                    <div id="logo" style="margin-top: 20px; margin-left: 20px;">
-                        <a href="/Market/Index">
-                             <img src="~/images/logo.png" alt="logo" height="80" style="border-radius: 30px;" />
-                        </a>    
-                    </div>
-       
-                    <div class="fixed-top-right" style="opacity:0.7">
-                        <div style="font-weight:bold">
-                            <a href="/Market/CoinMarketData" class="btn btn-light custom-button">Detaylar</a>
-                            <a href="/Varliklarim/Index" class="btn btn-light custom-button">Varlıklarım</a>
-                            <a href="/MyTrades/Index" class="btn btn-light custom-button">Geçmiş İşlemler</a>
-                            <a href="/Exit/Index" class="btn btn-light custom-button">Çıkış Yap</a>
-                        </div>
-                    </div>     
-            </div>
- 
-        <main>
-            @RenderBody()
-        </main>
-        <!-- main end -->
 
+    </style>
+    <title>CyproData | @ViewBag.Title</title>
+</head>
+<body>
+    <div>
+        <div id="logo" style="margin-top: 20px; margin-left: 20px;">
+            <a href="/Market/Index">
+                <img src="~/images/logo.png" alt="logo" height="60" style="border-radius: 30px;"/>
+            </a>
+        </div>
+        <div class="fixed-top-right" style="opacity:0.7">
+            <div style="font-weight:bold">
+                <a href="/Market/CoinMarketData" class="btn btn-light custom-button">Detaylar</a>
+                <a href="/Varliklarim/Index" class="btn btn-light custom-button">Varlıklarım</a>
+                <a href="/MyTrades/Index" class="btn btn-light custom-button">Geçmiş İşlemler</a>
+                <a href="/Exit/Index" class="btn btn-light custom-button">Çıkış Yap</a>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        @RenderBody()
+    </main>
+    <!-- main end -->
     <!-- bootstrap.bundle.min.js dosyası bağlantı etiketi -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jquery.min.js dosyası bağlantı etiketi -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @RenderSection("customScripts", false)
 
 </body>

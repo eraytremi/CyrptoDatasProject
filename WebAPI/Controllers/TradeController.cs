@@ -28,6 +28,23 @@ namespace WebAPI.Controllers
             return SendResponse(response);
         }
 
+
+        [HttpPost("buylimit")]
+        public async Task<IActionResult> BuyLimit(PostTrade dto)
+        {
+            var currentUserId = CurrentUser.Get(HttpContext);
+            var response = await _tradeService.LimitBuy(dto, currentUserId.GetValueOrDefault());
+            return SendResponse(response);
+        }
+
+        //[HttpPost("selllimit")]
+        //public async Task<IActionResult> SellLimit(PostTrade dto)
+        //{
+        //    var currentUserId = CurrentUser.Get(HttpContext);
+        //    var response = await _tradeService.LimitSell(dto, currentUserId.GetValueOrDefault());
+        //    return SendResponse(response);
+        //}
+
         [HttpPost("sellmarket")]
         public async Task<IActionResult> SellMarket(PostTrade dto)
         {

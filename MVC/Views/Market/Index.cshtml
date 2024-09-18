@@ -7,23 +7,32 @@
 
 @section customScripts {
 
-        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
-        <script type="text/javascript" charset = "utf8" src = "https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js" ></script>
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
- 
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+
     <script>
-                // DataTable başlatma
-                var dataTable = $('#eventDataTable').DataTable({
+        // DataTable başlatma
+        var dataTable = $('#eventDataTable').DataTable({
+
+            language: {
+                search: "Ara:",
+                paginate: {
+                    previous:"Önceki",
+                    next:"Sonraki"
+                },
+                info: "_TOTAL_ kayıttan _START_ - _END_ arasındaki kayıtlar gösteriliyor",
+                lengthMenu: "Sayfada _MENU_ kayıt göster"
+            },
             "columnDefs": [
                 { "type": "html", "targets": 0 },
-                {   
+                {
                     "targets": 4, // Dördüncü sütun
                     "data": null, // Veri yok
                     "defaultContent": "<button class='btn btn-info btn-sm'>Detay</button>", // Buton ekleme
                     "orderable": false // Sıralanabilir değil
                 }
             ]
-             });
+        });
 
         // 'Detay' butonuna tıklama olayı
 
@@ -42,7 +51,6 @@
 <head>
     <meta charset="utf-8" />
     <title>Market</title>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -61,7 +69,7 @@
 
 </head>
 <body>
- 
+
 
     <div class="container mt-5 transparent">
         <table id="eventDataTable" class="display transparent">
@@ -79,21 +87,21 @@
         </table>
     </div>
 
-   
+
     <!-- Modal Structure -->
     <div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
-        
-    <div class="modal-dialog" role="document">
+
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">Trade Details</h5>
+                    <h5 class="modal-title" id="modalTitle">Trade Detayları</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p><strong>Symbol:</strong> <span id="modalSymbol"></span></p>
-                    <p><strong>Last Price:</strong> <span id="modalLastPrice"></span></p>
+                    <p><strong>Sembol:</strong> <span id="modalSymbol"></span></p>
+                    <p><strong>Son Fiyat:</strong> <span id="modalLastPrice"></span></p>
 
                     <!-- Tab Navigation for Market and Limit Order -->
                     <ul class="nav nav-tabs">

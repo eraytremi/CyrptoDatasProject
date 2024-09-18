@@ -25,7 +25,7 @@ namespace Business.Concrete
 
         public async Task InsertPastDatasFromCryptoCompare(long currentUserId)
         {
-            string[] symbols = { "BTC", "ETH"};
+            string[] symbols = { "BTC","ETH" };
             string[] parities = { "USDT" };
             foreach (string symbol in symbols)
             {
@@ -49,7 +49,7 @@ namespace Business.Concrete
                         };
 
                         _cyrptoContext.Add(newData);
-                        _cyrptoContext.SaveChanges();
+                        await _cyrptoContext.SaveChangesAsync();
 
                     }
                 }        
